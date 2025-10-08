@@ -1,0 +1,9 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "dependencies": {
+    "core": "1.0.0"
+  }
+}

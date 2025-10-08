@@ -1,0 +1,31 @@
+{
+  "name": "framework",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend Game Framework",
+  "workspaces": [
+    "packages/*",
+    "games/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -b"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BoberGames/framework.git"
+  },
+  "keywords": [],
+  "author": "Igor Georgiev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BoberGames/framework/issues"
+  },
+  "homepage": "https://github.com/BoberGames/framework#readme",
+  "dependencies": {
+    "pixi.js": "^8.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
