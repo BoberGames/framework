@@ -5,11 +5,12 @@
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "strict": true,
-    "outDir": "dist",
-    "rootDir": ".",
-    "composite": true,
-    "declaration": true,
-    "baseUrl": "."
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "core-engine": ["packages/core-engine/src"],
+      "core-reels": ["packages/core-reels/src"]
+    }
   },
-  "include": ["packages", "games"]
+  "include": ["packages/**/*", "games/**/*"]
 }

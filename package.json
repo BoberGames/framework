@@ -1,31 +1,36 @@
 {
   "name": "framework",
-  "version": "1.0.0",
   "private": true,
-  "description": "Frontend Game Framework",
+  "version": "1.0.0",
   "workspaces": [
     "packages/*",
     "games/*"
   ],
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -b"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BoberGames/framework.git"
   },
   "keywords": [],
-  "author": "Igor Georgiev",
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/BoberGames/framework/issues"
   },
   "homepage": "https://github.com/BoberGames/framework#readme",
-  "dependencies": {
-    "pixi.js": "^8.14.0"
-  },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "html-webpack-plugin": "^5.5.3",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.3.3",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "dependencies": {
+    "pixi.js": "^8.13.2"
   }
 }

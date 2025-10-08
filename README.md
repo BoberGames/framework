@@ -1,2 +1,0 @@
-# framework
-Frontend Game Framework
