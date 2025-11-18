@@ -1,0 +1,50 @@
+{
+    "name": "Loading Manifest",
+    "items": [
+        {
+            "id": "anymaplay_logo",
+            "type": "image",
+            "path": "./assets/renderer/base/loading/anymaplay-logo.png"
+        },
+        {
+            "id": "loading_bar",
+            "type": "image",
+            "path": "./assets/renderer/base/loading/bar.png"
+        },
+        {
+            "id": "loading_base",
+            "type": "image",
+            "path": "./assets/renderer/base/loading/base.png"
+        },
+        {
+            "id": "d_loading_bg",
+            "type": "image",
+            "path": "./assets/renderer/base/loading/d_loading_bg.jpg"
+        },
+        {
+            "id": "p_loading_bg",
+            "type": "image",
+            "path": "./assets/renderer/base/loading/p_loading_bg.jpg"
+        },
+        {
+            "id": "loading_shine",
+            "type": "image",
+            "path": "./assets/renderer/base/loading/shine.png"
+        },
+        {
+            "id": "logo",
+            "type": "json",
+            "path": "./assets/renderer/base/desktop/animation/Logo/logo.json"
+        },
+        {
+            "id": "character",
+            "type": "json",
+            "path": "./assets/renderer/base/desktop/animation/Character/character.json"
+        },
+        {
+            "id": "continue_btn",
+            "type": "json",
+            "path": "./assets/renderer/base/loading/continue_btn.json"
+        }
+    ]
+}

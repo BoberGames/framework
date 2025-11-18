@@ -23,6 +23,7 @@
     "license": "MIT",
     "dependencies": {
         "@esotericsoftware/spine-pixi-v8": "^4.2.95",
+        "@pixi/ui": "^2.2.7",
         "core-js": "^3.41.0",
         "gsap": "^3.13.0",
         "pixi.js": "^8.14.1"
