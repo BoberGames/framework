@@ -4,6 +4,7 @@ import "@esotericsoftware/spine-pixi-v8";
 
 import { Background } from "./views/Background";
 import { CascadeView } from "./views/slot/Cascade";
+import { SplashView } from "./views/SplashView";
 
 export const dispatcher = new EventEmitter();
 
@@ -46,7 +47,23 @@ console.log(
         height: gameHeight,
     });
 
-    await loadGameAssets();
+    document.body.appendChild(app.canvas);
+
+    const splash = new SplashView(app);
+
+    await splash.init()
+
+    // resize handlers
+    window.onresize = () => resizeCanvas();
+    window.onorientationchange = () => resizeCanvas();
+    window.visualViewport?.addEventListener("resize", () => resizeCanvas());
+    window.visualViewport?.addEventListener("scroll", () => resizeCanvas());
+    window.addEventListener("orientationchange", () => resizeCanvas());
+    window.addEventListener("resize", () => resizeCanvas());
+
+    resizeCanvas();
+
+    // await loadGameAssets();
 
     async function loadGameAssets(): Promise<void> {
         const manifest = {
@@ -58,7 +75,6 @@ console.log(
         await Assets.init({ manifest });
         await Assets.loadBundle(["sheet"]);
 
-        document.body.appendChild(app.canvas);
 
         const bg = new Background();
         const cascade = new CascadeView();
@@ -66,15 +82,7 @@ console.log(
         app.stage.addChild(bg);
         app.stage.addChild(cascade);
 
-        // resize handlers
-        window.onresize = () => resizeCanvas();
-        window.onorientationchange = () => resizeCanvas();
-        window.visualViewport?.addEventListener("resize", () => resizeCanvas());
-        window.visualViewport?.addEventListener("scroll", () => resizeCanvas());
-        window.addEventListener("orientationchange", () => resizeCanvas());
-        window.addEventListener("resize", () => resizeCanvas());
 
-        resizeCanvas();
     }
 
     /**

@@ -1,0 +1,10 @@
+{
+  "name": "Base Game Manifest",
+  "items": [
+    {
+      "id": "sheet",
+      "type": "json",
+      "path": "./assets/sheet.json"
+    }
+  ]
+}

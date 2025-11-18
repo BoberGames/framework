@@ -1,7 +1,7 @@
-import { Assets } from "pixi.js";
+import { Assets, AssetsManifest, Texture } from "pixi.js";
+import { dispatcher } from "../index";
 
 export class AssetManager {
-    public loadProgress: number;
     public loadedJSON: any;
     private static _instances: any = {};
     private _hasLoaded: boolean = false;
@@ -38,11 +38,11 @@ export class AssetManager {
         return res;
     }
 
-    public loadManifest = async (manifest: PIXI.AssetsManifest) => {
+    public loadManifest = async (manifest: AssetsManifest) => {
         await Assets.init({ manifest: manifest });
     }
 
-    public getPIXITexture(textureId: string): PIXI.Texture {
+    public getPIXITexture(textureId: string): Texture {
         let texture: Texture;
 
         if (this.getPIXIImage(textureId)) {
@@ -82,7 +82,7 @@ export class AssetManager {
         })
         await Assets.load(AssetManager._instances['imageList'], (progress) => {
             AssetManager._instances['progress'] = progress;
-            ApplicationBase.instance.emit(ON_UPDATE_PROGRESS, progress);
+            dispatcher.emit("progress", progress);
         }).then(data => {
             AssetManager._instances['imageListLoad'] = data;
         })
