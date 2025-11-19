@@ -50,6 +50,7 @@ console.log(
     document.body.appendChild(app.canvas);
 
     const splash = new SplashView(app);
+    resizeCanvas();
 
     await splash.init()
 
@@ -61,20 +62,19 @@ console.log(
     window.addEventListener("orientationchange", () => resizeCanvas());
     window.addEventListener("resize", () => resizeCanvas());
 
-    resizeCanvas();
 
     // await loadGameAssets();
 
     async function loadGameAssets(): Promise<void> {
-        const manifest = {
-            bundles: [
-                { name: "sheet", assets: [{ alias: "sheet", src: "./assets/sheet.json" }] },
-            ],
-        } satisfies AssetsManifest;
-
-        await Assets.init({ manifest });
-        await Assets.loadBundle(["sheet"]);
-
+        // const manifest = {
+        //     bundles: [
+        //         { name: "sheet", assets: [{ alias: "sheet", src: "./assets/sheet.json" }] },
+        //     ],
+        // } satisfies AssetsManifest;
+        //
+        // await Assets.init({ manifest });
+        // await Assets.loadBundle(["sheet"]);
+        //
 
         const bg = new Background();
         const cascade = new CascadeView();
@@ -89,11 +89,7 @@ console.log(
      * Debounced resize for mobile browsers
      */
     function resizeCanvas(): void {
-        clearTimeout(resizeTimeout);
-
-        // mobile browsers need a short delay to stabilize viewport
-        // @ts-ignore
-        resizeTimeout = setTimeout(applyResize, 120);
+        applyResize();
     }
 
     /**

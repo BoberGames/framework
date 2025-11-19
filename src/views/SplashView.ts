@@ -1,14 +1,19 @@
 import { ProgressBar } from "@pixi/ui";
-import { Application, Assets, AssetsManifest, Container, Sprite, Texture } from "pixi.js";
+import { Application, Assets, AssetsManifest, Container, Sprite, Texture, Ticker } from "pixi.js";
 import { dispatcher } from "../index";
 import { AssetManager } from "../loader/AssetManager";
 import gsap from "gsap";
+import { Background } from "./Background";
+import { CascadeView } from "./slot/Cascade";
 export class SplashView {
     public preLoadContainer: Container = new Container();
     private progressBar: ProgressBar | undefined;
     private app: Application;
     private asset: AssetManager;
     private loaded: boolean = false;
+    private fakeProgress = 0;
+    private realProgress = 0;
+    private progressTicker?: (ticker: Ticker) => void;
 
     constructor(app: Application) {
         this.app = app;
@@ -18,16 +23,19 @@ export class SplashView {
     public init = async () => {
         await this.asset.load("assets/loading-manifest.json").then(async () => {
             const background = new Sprite(Texture.from("loading_bg"));
-            background.name = "background";
 
             const logo = new Sprite(Texture.from("loader_logo"));
-            logo.name = "loading_logo";
-            logo.position.set(0, 0);
 
-            this.preLoadContainer.addChild(background, logo);
+            const hacksawLogo = new Sprite(Texture.from("loading_hacksaw"));
+            hacksawLogo.alpha = 0;
+
+            this.preLoadContainer.addChild(background, logo, hacksawLogo);
+
             this.app.stage.addChild(this.preLoadContainer);
+            await gsap.from(logo, {y: -300, alpha: 0, duration: 0.5});
+            gsap.to(hacksawLogo, {alpha: 1, duration: 0.5});
 
-            this.asset.load("./assets/manifest.json");
+            this.asset.load("assets/manifest.json");
             this.showProgressBar();
         });
     };
@@ -69,29 +77,53 @@ export class SplashView {
             bg: "loader_frame",
             fill: "loader_bar",
             fillPaddings: { left: 0, top: 0 },
-            progress: this.asset.getProgress(),
+            progress: 0,
         });
-        this.progressBar.pivot.set(0.5);
-        this.progressBar.name = "loadingBar";
 
-        this.progressBar.position.set(960, 800);
+        this.progressBar.position.set(
+            (this.preLoadContainer.width - this.progressBar.width) * 0.5,
+            800
+        );
         this.preLoadContainer.addChild(this.progressBar);
 
-        dispatcher.on("progress", async (p: any) => {
-            if (this.loaded) return;
-            if (!this.progressBar) return;
+        this.progressTicker = () => {
+            this.fakeProgress += (this.realProgress - this.fakeProgress) * 0.05;
 
-            this.progressBar.progress = p * 100;
-            if (this.progressBar.progress / 100 === 1) {
+            if (this.progressBar)
+                this.progressBar.progress = this.fakeProgress;
+
+            if (this.fakeProgress >= 90 && this.realProgress >= 100 && !this.loaded) {
                 this.loaded = true;
 
-                // const btn = this.createStartBtn();
-                // gsap.to(this.progressBar, { alpha: 0, ease: "power3.in", duration: 0.5 });
-                // await gsap.to(btn, { alpha: 1, ease: "power3.out", duration: 0.5, delay: 0.3 });
-                // btn.play();
+                if (this.progressBar) this.progressBar.progress = 100;
 
-                this.preLoadContainer.removeChild(this.progressBar);
+                this.onLoadComplete();
+                this.stopProgressTicker();
             }
+        };
+
+        this.app.ticker.add(this.progressTicker);
+
+
+        dispatcher.on("progress", (p: number) => {
+            this.realProgress = p * 100;
         });
+    }
+
+
+    private stopProgressTicker() {
+        if (this.progressTicker) {
+            this.app.ticker.remove(this.progressTicker);
+            this.progressTicker = undefined;
+        }
+    }
+
+    private onLoadComplete() {
+        console.log("Loading finished (fake delay).");
+        const bg = new Background();
+        const cascade = new CascadeView();
+
+        this.app.stage.addChild(bg);
+        this.app.stage.addChild(cascade);
     }
 }
