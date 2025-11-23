@@ -151,7 +151,7 @@
         <key>globalSpriteSettings</key>
         <struct type="SpriteSettings">
             <key>scale</key>
-            <double>1</double>
+            <double>0.86</double>
             <key>scaleMode</key>
             <enum type="ScaleMode">Smooth</enum>
             <key>extrude</key>
@@ -174,6 +174,12 @@
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">background/BACKGROUND.png</key>
+            <key type="filename">info/Info_logo.png</key>
+            <key type="filename">info/continue.png</key>
+            <key type="filename">info/info_bg.jpg</key>
+            <key type="filename">info/info_maxwin.png</key>
+            <key type="filename">info/info_scatter.png</key>
+            <key type="filename">info/info_wild.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>
@@ -364,6 +370,7 @@
                     <filename>character</filename>
                     <filename>logo</filename>
                     <filename>symbols</filename>
+                    <filename>info</filename>
                 </array>
             </struct>
         </map>

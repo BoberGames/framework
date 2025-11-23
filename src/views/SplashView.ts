@@ -5,6 +5,7 @@ import { AssetManager } from "../loader/AssetManager";
 import gsap from "gsap";
 import { Background } from "./Background";
 import { CascadeView } from "./slot/Cascade";
+import { StartScreen } from "./StartScreen";
 export class SplashView {
     public preLoadContainer: Container = new Container();
     private progressBar: ProgressBar | undefined;
@@ -125,5 +126,7 @@ export class SplashView {
 
         this.app.stage.addChild(bg);
         this.app.stage.addChild(cascade);
+
+        this.app.stage.addChild(new StartScreen());
     }
 }
