@@ -59,22 +59,47 @@ export class AssetManager {
             AssetManager._instances['imageList'] = []
             for (const item of manifest.items) {
                 switch (item.type) {
-                    case AssetManager.ASSET_TYPE_IMAGE:
-                        {
-                            AssetManager._instances['imageList'].push({ alias: item.id, src: item.path })
-                            break;
-                        }
-                    case AssetManager.ASSET_TYPE_JSON:
-                        {
-                           AssetManager._instances['imageList'].push({ alias: item.id, src: item.path, loader: 'loadJson' })
-                            break;
-                        }
-                    case AssetManager.ASSET_TYPE_FONT:
-                        {
-                           AssetManager._instances['imageList'].push({ alias: item.id, data:{ family: item.id }, src: item.path })
-                            break;
-                        }
+                    case AssetManager.ASSET_TYPE_IMAGE: {
+                        AssetManager._instances["imageList"].push({
+                            alias: item.id,
+                            src: item.path
+                        });
+                        break;
+                    }
+                    case AssetManager.ASSET_TYPE_JSON: {
+                        AssetManager._instances["imageList"].push({
+                            alias: item.id,
+                            src: item.path,
+                            loader: "loadJson"
+                        });
+                        break;
+                    }
+                    case AssetManager.ASSET_TYPE_FONT: {
+                        AssetManager._instances["imageList"].push({
+                            alias: item.id,
+                            data: { family: item.id },
+                            src: item.path
+                        });
+                        break;
+                    }
+                    case "spine": {
+                        // Loads skeleton.json + atlas.atlas
+                        AssetManager._instances["imageList"].push(
+                            {
+                                alias: `${item.id}:data`,
+                                src: item.path + ".json",
+                                loader: "loadJson"
+                            },
+                            {
+                                alias: `${item.id}:atlas`,
+                                src: item.path + ".atlas",
+                                loader: "loadText"
+                            }
+                        );
+                        break;
+                    }
                 }
+
             }
         }
         await Assets.load({ src: manifest, loader: 'loadJson' }).then(data => {

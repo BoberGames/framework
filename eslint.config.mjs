@@ -6,13 +6,7 @@ import htmlPlugin from "eslint-plugin-html";
 
 // Define the common rules in a constant
 const commonRules = {
-    "padding-line-between-statements": [
-        "error",
-        { blankLine: "always", prev: "*", next: "return" },
-        { blankLine: "always", prev: ["const", "let", "var"], next: "*" },
-        { blankLine: "any", prev: ["const", "let", "var"], next: ["const", "let", "var"] },
-        { blankLine: "always", prev: ["if"], next: "*" },
-    ],
+    "padding-line-between-statements": "off",
     "sort-imports": [
         "error",
         {

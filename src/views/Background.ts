@@ -2,6 +2,7 @@ import { Assets, Container, Sprite } from "pixi.js";
 import { dispatcher } from "../index";
 import { TextFeed } from "../TextFeed";
 import { ReelCfg } from "../cfg/ReelCfg";
+import { getSpine } from "../utils/spine-example";
 
 export class Background extends Container {
     constructor() {
@@ -9,11 +10,11 @@ export class Background extends Container {
         this.createBaseBg();
     }
 
-    private createBaseBg() {
+    private async createBaseBg() {
         const bg = new Sprite(Assets.get("background/BACKGROUND"));
 
         bg.interactive = true;
-        bg.on('pointerdown', () => {
+        bg.on("pointerdown", () => {
             dispatcher.emit("SPIN");
         });
         this.addChild(bg);
@@ -22,13 +23,16 @@ export class Background extends Container {
         feed.container.y = this.height - feed.container.height;
 
         this.addChild(feed.container);
-        
+
         dispatcher.on("CLUSTER", (data: any) => {
             // @ts-ignore
             for (const item of data) {
                 // @ts-ignore
-                feed.addMessage("CLUSTER of " + item.cells.length + "X " +  ReelCfg.spineIds[item.id]);
+                feed.addMessage("CLUSTER of " + item.cells.length + "X " + ReelCfg.spineIds[item.id]);
             }
-        })
+        });
+        const cactus = await getSpine();
+        cactus.position.set(this.width * 0.17, this.height * 0.86);
+        this.addChild(cactus);
     }
 }

@@ -4,7 +4,7 @@ import { dispatcher } from "../index";
 import { AssetManager } from "../loader/AssetManager";
 import gsap from "gsap";
 import { Background } from "./Background";
-import { CascadeView } from "./slot/Cascade";
+import { CascadeView } from "./slot/CascadeView";
 import { StartScreen } from "./StartScreen";
 export class SplashView {
     public preLoadContainer: Container = new Container();

@@ -1,23 +1,36 @@
 import { Assets, Container, DestroyOptions, Graphics, Sprite } from "pixi.js";
 import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import gsap from "gsap";
+import { Spine } from "@esotericsoftware/spine-pixi-v8";
 
 export class Symbol extends Container {
     public id: string = "";
-    private img: Sprite;
+    private spine: Spine;
 
     constructor(symId: SymId) {
         super();
         const spineId = ReelCfg.spineIds[symId as keyof typeof ReelCfg.spineIds] ?? "SCATTER";
 
-        this.img = new Sprite(Assets.get("symbols/" + spineId));
-        this.img.anchor.set(0.5, 0.5);
-        this.addChild(this.img);
-        this.id = symId;
+        // Center the spine object on screen.
+        this.spine = Spine.from({
+            skeleton: "symbols:data",
+            atlas:    "symbols:atlas",
+            scale: 0.5,
+        });
+
+        if(spineId.length > 2) {
+            this.spine.state.setAnimation(0, spineId + " idle", true);
+        } else {
+            this.spine.state.setAnimation(0, spineId + " land", false);
+        }
+
+        // this.img.anchor.set(0.5, 0.5);
+        this.addChild(this.spine);
+        this.id = spineId;
     }
 
     public setId(symId: string): void {
-        this.img.texture = Assets.get("symbols/" + symId);
+        // this.img.texture = Assets.get("symbols/" + symId);
     }
 
     public getId(): string {
@@ -25,19 +38,33 @@ export class Symbol extends Container {
     }
 
     public showLanding(): void {
-
+        if(this.spine) {
+            this.spine.state.setAnimation(0, this.id + " land", false);
+            this.spine.state.addListener({
+                complete: () => {
+                    if(this.id.length > 2) {
+                        this.spine.state.setAnimation(0, this.id + " idle", true);
+                    }
+                }
+            });
+        }
     }
 
     public async showWinAnim(): Promise<void> {
-        const debug = new Graphics();
+        return new Promise<void>((resolve) => {
+            if(this.spine) {
+                this.spine.state.setAnimation(0, this.id + " win", false);
 
-        debug.beginFill(0x00ff00, 0.6);
-        debug.drawRect(-this.width * 0.5, -this.height * 0.5, this.width, this.height);
-        debug.endFill();
-        this.addChildAt(debug, 0);
-        await gsap.delayedCall(1, () => {})
+                this.spine.state.addListener({
+                    complete: () => {
+                        requestAnimationFrame(() => {
+                            resolve();
+                        });
+                    }
+                });
+            }
 
-        return gsap.to(this.scale, { x: 0, y: 0, duration: 0.5 }).then() as unknown as Promise<void>;
+        });
     }
 
     public destroy(options?: DestroyOptions) {

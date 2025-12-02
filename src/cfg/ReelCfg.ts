@@ -14,10 +14,8 @@ export type SingleFreeSpinResult = {
 
 export class ReelCfg {
     static readonly animType = {
-        landing: "_landing",
-        win: "_win_animation",
-        scatter_land: "landing",
-        scatter_win: "win_animation",
+        landing: "land",
+        win: " win",
     };
 
     static readonly scatterId: SymId = "SC";
@@ -28,10 +26,10 @@ export class ReelCfg {
         CC: 'Q',
         DD: 'K',
         EE: 'A',
-        FF: 'VULTURE',
-        GG: 'DOGGY',
-        HH: 'LOLITA',
-        II: 'TAPIR'
+        FF: 'vulture',
+        GG: 'dog',
+        HH: 'snake',
+        II: 'tapir'
     };
 
     public static get symIds() {

@@ -3,7 +3,7 @@ import { Application, Assets, AssetsManifest, EventEmitter } from "pixi.js";
 import "@esotericsoftware/spine-pixi-v8";
 
 import { Background } from "./views/Background";
-import { CascadeView } from "./views/slot/Cascade";
+import { CascadeView } from "./views/slot/CascadeView";
 import { SplashView } from "./views/SplashView";
 
 export const dispatcher = new EventEmitter();

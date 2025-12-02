@@ -106,7 +106,7 @@ export class CascadeView extends Container {
         return Array.from({ length: cols }, () => Array<Symbol | null>(rows).fill(null));
     }
 
-    private getSymbolX(c: number) { return 500 + c * this.symbolSize; }
+    private getSymbolX(c: number) { return 550 + c * this.symbolSize; }
     private getSymbolY(r: number) { return 150 + r * this.symbolSize; }
 
     /** MASK */
