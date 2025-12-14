@@ -373,6 +373,7 @@ export class CascadeView extends Container {
         else this.nonWinningSpinStreak = 0;
 
         while (clusters.length > 0) {
+            dispatcher.emit("ANTICIPATE");
             dispatcher.emit("CLUSTER", clusters);
 
             await this.explodeClusterFromClusters(clusters);

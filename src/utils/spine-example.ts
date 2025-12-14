@@ -9,42 +9,70 @@ export async function getSpine(): Promise<Spine> {
     });
 
     cactus.state.data.defaultMix = 0.25;
-    // Center the spine object on screen.
-    cactus.state.setAnimation(0, "idle 1", true);
-    runAnimationMixer(cactus);
+
     return cactus;
 }
 
-function runAnimationMixer(spine: Spine) {
-    const baseAnim = "idle 1"; // looping
-    const randomAnims = ["idle 2", "idle 3"];
+export function runAnimationMixer(spine: Spine) {
+    const baseAnim = "IDLE_1_DAY";
+    const randomAnims = ["IDLE_2", "IDLE_3"];
 
-    // start the loop
+    let running = true;
+    let activeEntry: any = null;
+
     spine.state.setAnimation(0, baseAnim, true);
 
     async function loop() {
-        while (true) {
+        while (running) {
             // random wait
             const wait = 1500 + Math.random() * 9000;
             await delay(wait);
 
-            // pick animation
+            if (!running) break;
+
             const anim = randomAnims[Math.floor(Math.random() * randomAnims.length)];
+            activeEntry = spine.state.setAnimation(0, anim, false);
 
-            // 🔥 play it ON SAME TRACK (0)
-            const entry = spine.state.setAnimation(0, anim, false);
+            try {
+                await waitForComplete(activeEntry);
+            } catch {
+                // animation was cancelled
+                break;
+            }
 
-            // wait for it
-            await waitForComplete(entry);
+            if (!running) break;
 
-            // 🔥 smoothly return to baseAnim
             spine.state.setAnimation(0, baseAnim, true);
         }
     }
 
     loop();
+
+    return {
+        stop() {
+            running = false;
+
+            // stop animation safely
+            spine.state.clearTrack(0);
+            spine.state.clearListeners();
+
+            // optional: reset pose
+            // spine.skeleton.setToSetupPose();
+            // spine.update(0);
+        },
+    };
 }
 
+
+export async function playAnticipation(spine: Spine): Promise<void> {
+    const entry = spine.state.setAnimation(0, "ANTICIPATION", false);
+    await waitForComplete(entry);
+    runAnimationMixer(spine);
+}
+
+function playWin(): void {
+
+}
 
 
 function delay(ms: number) {

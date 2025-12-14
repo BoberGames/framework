@@ -29,7 +29,7 @@ export class CascadeModel {
         return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    /** Full BFS cluster detection with WD adjacency check */
+    /** Full BFS cluster detection with WD acting as connector */
     public getClusters(grid: (SymId | null)[][]): Cluster[] {
         const rows = grid.length;
         if (rows === 0) return [];
@@ -40,7 +40,7 @@ export class CascadeModel {
 
         const dirs = [
             [1, 0], [-1, 0],
-            [0, 1], [0, -1]
+            [0, 1], [0, -1],
         ];
 
         const key = (r: number, c: number) => `${r},${c}`;
@@ -53,10 +53,12 @@ export class CascadeModel {
                 const target = grid[r][c];
                 visited.add(k);
 
+                // ❌ cannot start from empty or WD
                 if (!target || target === ReelCfg.spineIds.WD) continue;
 
                 const queue = [{ r, c }];
                 const group: { r: number; c: number }[] = [];
+                let hasWild = false;
 
                 while (queue.length) {
                     const cur = queue.shift()!;
@@ -70,38 +72,39 @@ export class CascadeModel {
 
                         const nk = key(nr, nc);
                         if (visited.has(nk)) continue;
-                        if (grid[nr][nc] !== target) continue;
 
-                        visited.add(nk);
-                        queue.push({ r: nr, c: nc });
-                    }
-                }
+                        const cell = grid[nr][nc];
 
-                // 🔍 Check if cluster touches a WD
-                let touchesWD = false;
-
-                for (const cell of group) {
-                    for (const [dr, dc] of dirs) {
-                        const nr = cell.r + dr;
-                        const nc = cell.c + dc;
-
-                        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
-
-                        if (grid[nr][nc] === ReelCfg.spineIds.WD) {
-                            touchesWD = true;
-                            group.push({ r: nr, c: nc });
-                            break;
+                        // ✅ same symbol → normal BFS
+                        if (cell === target) {
+                            visited.add(nk);
+                            queue.push({ r: nr, c: nc });
+                            continue;
                         }
+
+                        // 🌟 WD → include it AND continue search through it
+                        if (cell === ReelCfg.spineIds.WD) {
+                            hasWild = true;
+                            visited.add(nk);
+                            queue.push({ r: nr, c: nc });
+                            continue;
+                        }
+
+                        // ❌ other symbol → ignore
                     }
-                    if (touchesWD) break;
                 }
 
-                clusters.push({ id: target, cells: group, hasWild: touchesWD });
+                clusters.push({
+                    id: target,
+                    cells: group,
+                    hasWild,
+                });
             }
         }
 
         return clusters;
     }
+
 
 
     /** Return clusters only >= minSize */

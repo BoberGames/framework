@@ -2,7 +2,7 @@ import { Assets, Container, Sprite } from "pixi.js";
 import { dispatcher } from "../index";
 import { TextFeed } from "../TextFeed";
 import { ReelCfg } from "../cfg/ReelCfg";
-import { getSpine } from "../utils/spine-example";
+import { getSpine, playAnticipation, runAnimationMixer } from "../utils/spine-example";
 
 export class Background extends Container {
     constructor() {
@@ -33,6 +33,30 @@ export class Background extends Container {
         });
         const cactus = await getSpine();
         cactus.position.set(this.width * 0.17, this.height * 0.86);
+        cactus.state.setAnimation(0, "IDLE_1_DAY", true);
+
         this.addChild(cactus);
+
+
+        let mixer: ReturnType<typeof runAnimationMixer> | null = null;
+
+        function startMixer() {
+            // safety: never double-start
+            mixer?.stop();
+            mixer = runAnimationMixer(cactus);
+        }
+
+        function stopMixer() {
+            mixer?.stop();
+            mixer = null;
+        }
+        startMixer();
+        dispatcher.on("ANTICIPATE", async () => {
+            stopMixer();                     // 🔴 kill ambient loop
+
+            await playAnticipation(cactus);  // ▶ anticipation anim
+
+            startMixer();                    // 🟢 fresh mixer instance
+        });
     }
 }

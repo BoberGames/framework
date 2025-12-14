@@ -5,7 +5,7 @@ import { Spine } from "@esotericsoftware/spine-pixi-v8";
 
 export class Symbol extends Container {
     public id: string = "";
-    private spine: Spine;
+    private spine: Spine | null = null;
 
     constructor(symId: SymId) {
         super();
@@ -24,7 +24,9 @@ export class Symbol extends Container {
             spineId !== ReelCfg.spineIds.SC &&
             this.id !== "BALLOON"
         ) {
-            this.spine.state.setAnimation(0, spineId + ReelCfg.animType.idle, true);
+            this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
+            const delay = this.createNonRepeatingRandom();
+            gsap.delayedCall(delay(), ()=>{this.startRandomIdleLoop(spineId)});
         } else {
             this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
         }
@@ -33,6 +35,50 @@ export class Symbol extends Container {
         this.addChild(this.spine);
         this.id = spineId;
     }
+
+    private startRandomIdleLoop(spineId: string): void {
+        const playIdle = () => {
+            const repeatCount = gsap.utils.random(1, 3, 1); // integer 1–3
+            let played = 0;
+
+            const onComplete = () => {
+                played++;
+
+                if (played < repeatCount) {
+                    this.spine?.state.setAnimation(
+                        0,
+                        spineId + ReelCfg.animType.idle,
+                        false
+                    );
+                } else {
+                    // cleanup listener
+                    this.spine?.state.removeListener(listener);
+
+                    // schedule next random cycle
+                    scheduleNext();
+                }
+            };
+
+            const listener = { complete: onComplete };
+            this.spine?.state.addListener(listener);
+
+            // start first idle
+            this.spine?.state.setAnimation(
+                0,
+                spineId + ReelCfg.animType.idle,
+                false
+            );
+        };
+
+        const scheduleNext = () => {
+            const delay = this.createNonRepeatingRandom();
+            gsap.delayedCall(delay(), playIdle);
+        };
+
+        // initial random delay
+        scheduleNext();
+    }
+
 
     public setId(symId: string): void {
         // this.img.texture = Assets.get("symbols/" + symId);
@@ -54,7 +100,8 @@ export class Symbol extends Container {
                         this.id !== ReelCfg.spineIds.SC &&
                         this.id !== "BALLOON"
                     ) {
-                        this.spine.state.setAnimation(0, this.id + ReelCfg.animType.idle, true);
+                        const delay = this.createNonRepeatingRandom();
+                        gsap.delayedCall(delay(), ()=>{this.startRandomIdleLoop(this.id)});
                     }
                 },
             });
@@ -104,6 +151,37 @@ export class Symbol extends Container {
     }
 
     public destroy(options?: DestroyOptions) {
+        gsap.killTweensOf(this.spine)
+        this.spine?.state?.clearListeners();
+        if(this.spine) {
+            this.removeChild(this.spine);
+            this.spine.destroy();
+        }
+        this.spine = null;
         super.destroy(options);
     }
+
+    private createNonRepeatingRandom(
+        min = 1,
+        max = 15,
+        minGap = 3
+    ): () => number {
+        let last: number | null = null;
+
+        return function getRandom(): number {
+            let value: number;
+            let attempts = 0;
+
+            do {
+                value = Math.floor(Math.random() * (max - min + 1)) + min;
+                attempts++;
+
+                if (attempts > 50) break;
+            } while (last !== null && Math.abs(value - last) < minGap);
+
+            last = value;
+            return value;
+        };
+    }
+
 }

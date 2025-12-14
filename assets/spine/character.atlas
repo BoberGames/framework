@@ -1,104 +1,105 @@
 character.png
-size:1475,269
+size:1598,270
 filter:Linear,Linear
 pma:true
 scale:0.5
 BELT
-bounds:1396,3,125,58
+bounds:1325,143,125,58
 rotate:90
 BODY 1
-bounds:660,125,142,321
+bounds:1002,126,142,321
 offsets:13,20,155,341
 rotate:90
 BODY 2
-bounds:983,125,142,321
-offsets:13,20,155,341
+bounds:660,116,152,340
+offsets:3,0,155,341
 rotate:90
 BODY spike
-bounds:311,92,175,347
+bounds:311,93,175,347
 offsets:4,1,179,348
 rotate:90
 EYES BACK
-bounds:174,15,69,31
+bounds:174,16,69,31
 EYESHINES
-bounds:1456,76,55,17
+bounds:1577,17,55,17
 rotate:90
 Eye laid 1
-bounds:1396,194,69,23
-Hair
-bounds:1306,214,53,51
+bounds:1454,3,69,23
 rotate:90
+Hair
+bounds:1414,97,53,51
 L Li finger
-bounds:1456,53,17,21
+bounds:689,93,17,21
 offsets:0,0,18,21
 L in fnger
-bounds:1359,222,27,21
+bounds:660,93,27,21
 L mid fnger
-bounds:660,107,16,25
+bounds:1404,79,16,25
 offsets:0,0,17,25
 rotate:90
 LEASH
-bounds:2,4,105,42
+bounds:2,5,105,42
 LEFT BOOT
-bounds:573,18,72,113
+bounds:637,19,72,113
 rotate:90
 LEFT BOTTLE
-bounds:1306,130,62,96
+bounds:1479,10,62,96
 rotate:90
 LEFT HAND 1
-bounds:1009,5,118,96
+bounds:1306,6,118,96
 rotate:90
 LEFT HAND 2
-bounds:1107,5,118,95
-offsets:0,0,118,96
+bounds:1385,150,118,96
 rotate:90
 LEFT HAND spike
-bounds:688,2,121,105
-rotate:90
+bounds:969,9,121,105
 LEFT HOLSTER
-bounds:508,9,63,81
+bounds:572,10,63,81
 LEFT HOLSTER BACK
-bounds:109,6,40,27
+bounds:109,7,40,27
 rotate:90
 MUSTAGE_HAIR
-bounds:205,82,185,104
+bounds:205,83,185,104
 rotate:90
 PONCHO BACK
-bounds:1396,219,48,70
-rotate:90
+bounds:1404,2,48,70
 PONCHO FRONT
-bounds:894,4,113,119
+bounds:1191,5,113,119
 offsets:0,0,114,119
 PUPILS
-bounds:1456,133,59,17
-rotate:90
+bounds:708,97,59,17
 R in finger
-bounds:205,52,24,28
+bounds:205,53,24,28
 R m finger
-bounds:1359,245,27,22
+bounds:1385,126,27,22
 RIGHT BOOT
-bounds:401,3,87,105
+bounds:401,4,87,105
 rotate:90
 RIGHT BOTTLE
-bounds:334,2,65,88
+bounds:334,3,65,88
 RIGHT HAND 1
-bounds:1204,16,107,94
+bounds:769,7,107,94
 offsets:0,0,113,95
 rotate:90
 RIGHT HAND 2
-bounds:1300,16,107,94
-offsets:0,0,113,95
-rotate:90
+bounds:1483,173,113,95
 RIGHT HAND spike
-bounds:795,2,121,97
+bounds:1092,3,121,97
 rotate:90
 RIGHT HOLSTER
-bounds:245,6,74,87
+bounds:245,7,74,87
 rotate:90
 RIGHT HOLSTER BACK
-bounds:138,11,35,34
+bounds:138,12,35,34
 rotate:90
 SOMBRERO
-bounds:2,48,219,201
+bounds:2,49,219,201
 offsets:0,0,246,201
 rotate:90
+SPIN BOTTLE
+bounds:865,8,106,102
+rotate:90
+spike shine
+bounds:1483,74,103,97
+spike shine 2
+bounds:508,6,62,85
