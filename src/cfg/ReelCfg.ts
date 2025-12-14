@@ -1,4 +1,4 @@
-export type SymId = "AA" | "BB" | "CC" | "DD" | "EE" | "FF" | "GG" | "HH" | "II" | "SC";
+export type SymId = "AA" | "BB" | "CC" | "DD" | "EE" | "FF" | "GG" | "HH" | "II" | "SC" | "WD";
 
 export type SingleFreeSpinResult = {
     screen: string[][];
@@ -14,8 +14,9 @@ export type SingleFreeSpinResult = {
 
 export class ReelCfg {
     static readonly animType = {
-        landing: "land",
-        win: " win",
+        landing: "_LAND",
+        win: "_WIN",
+        idle: "_IDLE"
     };
 
     static readonly scatterId: SymId = "SC";
@@ -26,10 +27,12 @@ export class ReelCfg {
         CC: 'Q',
         DD: 'K',
         EE: 'A',
-        FF: 'vulture',
-        GG: 'dog',
-        HH: 'snake',
-        II: 'tapir'
+        FF: 'VULTURE',
+        GG: 'DOG',
+        HH: 'SNAKE',
+        II: 'TAPIR',
+        SC: 'SCATTER',
+        WD: 'WILD'
     };
 
     public static get symIds() {

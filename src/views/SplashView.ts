@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { Background } from "./Background";
 import { CascadeView } from "./slot/CascadeView";
 import { StartScreen } from "./StartScreen";
+import { LogoView } from "./LogoView";
 export class SplashView {
     public preLoadContainer: Container = new Container();
     private progressBar: ProgressBar | undefined;
@@ -123,9 +124,13 @@ export class SplashView {
         console.log("Loading finished (fake delay).");
         const bg = new Background();
         const cascade = new CascadeView();
+        const logo = new LogoView();
+        logo.x = bg.width - logo.width * .55;
+        logo.y = bg.height * 0.28;
 
         this.app.stage.addChild(bg);
         this.app.stage.addChild(cascade);
+        this.app.stage.addChild(logo);
 
         this.app.stage.addChild(new StartScreen());
     }

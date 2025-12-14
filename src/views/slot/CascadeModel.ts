@@ -1,4 +1,4 @@
-import { SymId } from "../../cfg/ReelCfg";
+import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 
 export interface Cluster {
     id: SymId;
@@ -28,7 +28,7 @@ export class CascadeModel {
         return pool[Math.floor(Math.random() * pool.length)];
     }
 
-    /** Full BFS cluster detection: grid is [row][col] */
+    /** Full BFS cluster detection with WD adjacency check */
     public getClusters(grid: (SymId | null)[][]): Cluster[] {
         const rows = grid.length;
         if (rows === 0) return [];
@@ -52,7 +52,7 @@ export class CascadeModel {
                 const target = grid[r][c];
                 visited.add(k);
 
-                if (!target) continue;
+                if (!target || target === ReelCfg.spineIds.WD) continue;
 
                 const queue = [{ r, c }];
                 const group: { r: number; c: number }[] = [];
@@ -76,12 +76,34 @@ export class CascadeModel {
                     }
                 }
 
-                clusters.push({ id: target, cells: group });
+                // 🔍 Check if cluster touches a WD
+                let touchesWD = false;
+
+                for (const cell of group) {
+                    for (const [dr, dc] of dirs) {
+                        const nr = cell.r + dr;
+                        const nc = cell.c + dc;
+
+                        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+
+                        if (grid[nr][nc] === ReelCfg.spineIds.WD) {
+                            touchesWD = true;
+                            group.push({ r: nr, c: nc });
+                            break;
+                        }
+                    }
+                    if (touchesWD) break;
+                }
+
+                if (touchesWD) {
+                    clusters.push({ id: target, cells: group });
+                }
             }
         }
 
         return clusters;
     }
+
 
     /** Return clusters only >= minSize */
     public getClustersOfMinSize(grid: (SymId | null)[][], minSize = 5): Cluster[] {

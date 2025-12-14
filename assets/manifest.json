@@ -15,6 +15,11 @@
       "id": "symbols",
       "type": "spine",
       "path": "./assets/spine/symbols_animation"
+    },
+    {
+      "id": "logo",
+      "type": "spine",
+      "path": "./assets/spine/Logo"
     }
   ]
 }

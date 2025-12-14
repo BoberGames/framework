@@ -15,13 +15,13 @@ export class Symbol extends Container {
         this.spine = Spine.from({
             skeleton: "symbols:data",
             atlas:    "symbols:atlas",
-            scale: 0.5,
+            scale: spineId.length > 2 ? 0.45 : 0.6,
         });
 
-        if(spineId.length > 2) {
-            this.spine.state.setAnimation(0, spineId + " idle", true);
+        if(spineId.length > 2 && spineId !== ReelCfg.spineIds.WD && spineId !== ReelCfg.spineIds.SC) {
+            this.spine.state.setAnimation(0, spineId + ReelCfg.animType.idle, true);
         } else {
-            this.spine.state.setAnimation(0, spineId + " land", false);
+            this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
         }
 
         // this.img.anchor.set(0.5, 0.5);
@@ -39,11 +39,11 @@ export class Symbol extends Container {
 
     public showLanding(): void {
         if(this.spine) {
-            this.spine.state.setAnimation(0, this.id + " land", false);
+            this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
             this.spine.state.addListener({
                 complete: () => {
-                    if(this.id.length > 2) {
-                        this.spine.state.setAnimation(0, this.id + " idle", true);
+                    if(this.id.length > 2 && this.id.length > 2 && this.id !== ReelCfg.spineIds.WD && this.id !== ReelCfg.spineIds.SC) {
+                        this.spine.state.setAnimation(0, this.id + ReelCfg.animType.idle, true);
                     }
                 }
             });
@@ -53,7 +53,7 @@ export class Symbol extends Container {
     public async showWinAnim(): Promise<void> {
         return new Promise<void>((resolve) => {
             if(this.spine) {
-                this.spine.state.setAnimation(0, this.id + " win", false);
+                this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
 
                 this.spine.state.addListener({
                     complete: () => {

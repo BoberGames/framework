@@ -1,7 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import gsap from "gsap";
 import { Symbol } from "./Symbol";
-import { SymId } from "../../cfg/ReelCfg";
+import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import { CascadeModel } from "./CascadeModel";
 import { dispatcher } from "../../index";
 
@@ -12,7 +12,7 @@ export class CascadeView extends Container {
     public grid: (Symbol | null)[][] = [];
     public symsToDestroy: Symbol[] = [];
 
-    private symbolSize = 200;
+    private symbolSize = 180;
     private slotModel = new CascadeModel();
     private readyToDrop = true;
 
@@ -63,43 +63,73 @@ export class CascadeView extends Container {
         const cols = grid.length;
         const rows = grid[0].length;
 
-        const size = 5 + Math.floor(Math.random() * 5); // 5–9 cells
-        const id = this.slotModel.getRandomSymId();
+        const size = 5 + Math.floor(Math.random() * 5); // 5–9
+        let mainId: SymId;
 
-        const startC = Math.floor(Math.random() * cols);
-        const startR = Math.floor(Math.random() * rows);
+        // Never force SC as cluster symbol
+        do {
+            mainId = this.slotModel.getRandomSymId();
+        } while (mainId === "SC");
+
+        // Find a valid start cell (not SC)
+        let startC = 0;
+        let startR = 0;
+        let found = false;
+
+        for (let i = 0; i < 50 && !found; i++) {
+            startC = Math.floor(Math.random() * cols);
+            startR = Math.floor(Math.random() * rows);
+            if (grid[startC][startR] !== "SC") found = true;
+        }
+
+        if (!found) return grid; // safety exit
 
         const blob: { c: number; r: number }[] = [];
         const queue = [{ c: startC, r: startR }];
         const used = new Set<string>();
 
         const dirs = [
-            [1,0], [-1,0],
-            [0,1], [0,-1]
+            [1, 0], [-1, 0],
+            [0, 1], [0, -1]
         ];
 
         while (blob.length < size && queue.length) {
             const cur = queue.shift()!;
-            const key = cur.c + "," + cur.r;
+            const key = `${cur.c},${cur.r}`;
+
             if (used.has(key)) continue;
             used.add(key);
+
+            // 🚫 Skip SC cells completely
+            if (grid[cur.c][cur.r] === "SC") continue;
+
             blob.push(cur);
 
             for (const [dc, dr] of dirs) {
                 const nc = cur.c + dc;
                 const nr = cur.r + dr;
+
                 if (nc < 0 || nc >= cols || nr < 0 || nr >= rows) continue;
+                if (grid[nc][nr] === "SC") continue;
+
                 queue.push({ c: nc, r: nr });
             }
         }
 
-        // Apply cluster to the raw grid BEFORE drop
-        for (const { c, r } of blob) {
-            grid[c][r] = id;
+        if (blob.length < 5) return grid; // safety: no forced win
+
+        // 🎯 Inject exactly one WD inside the blob
+        const wdIndex = Math.floor(Math.random() * blob.length);
+
+        for (let i = 0; i < blob.length; i++) {
+            const { c, r } = blob[i];
+            grid[c][r] = (i === wdIndex ? "WD" : mainId) as SymId;
         }
 
         return grid;
     }
+
+
 
 
     private createEmptyGrid(cols: number, rows: number) {
@@ -107,7 +137,7 @@ export class CascadeView extends Container {
     }
 
     private getSymbolX(c: number) { return 550 + c * this.symbolSize; }
-    private getSymbolY(r: number) { return 150 + r * this.symbolSize; }
+    private getSymbolY(r: number) { return 180 + r * this.symbolSize; }
 
     /** MASK */
     private createGridMask() {
@@ -330,54 +360,6 @@ export class CascadeView extends Container {
 
         return this.slotModel.getClustersOfMinSize(modelGrid, 5);
     }
-
-    /** FORCE NATURAL RANDOM BLOB CLUSTER */
-    private forceRandomBlobCluster() {
-        const cols = this.grid.length;
-        const rows = this.grid[0].length;
-
-        const size = 5 + Math.floor(Math.random() * 5); // 5–9 cells
-        const id = this.slotModel.getRandomSymId();
-
-        const startC = Math.floor(Math.random() * cols);
-        const startR = Math.floor(Math.random() * rows);
-
-        const toVisit = [{ c: startC, r: startR }];
-        const blob: { c: number; r: number }[] = [];
-        const used = new Set<string>();
-
-        const dirs = [
-            [1,0], [-1,0],
-            [0,1], [0,-1]
-        ];
-
-        while (blob.length < size && toVisit.length) {
-            const cur = toVisit.shift()!;
-            const k = cur.c + "," + cur.r;
-            if (used.has(k)) continue;
-            used.add(k);
-            blob.push(cur);
-
-            for (const [dc, dr] of dirs) {
-                const nc = cur.c + dc;
-                const nr = cur.r + dr;
-                if (nc < 0 || nc >= cols || nr < 0 || nr >= rows) continue;
-                toVisit.push({ c: nc, r: nr });
-            }
-        }
-
-        // Apply forced cluster
-        for (const { c, r } of blob) {
-            const existing = this.grid[c][r];
-            if (existing) {
-                this.removeChild(existing);
-                existing.destroy();
-            }
-            const s = new Symbol(id);
-            this.setPosition(s, c, r);
-        }
-    }
-
 
     /** MAIN CASCADE LOOP */
     private async handleCascadesAfterDrop() {
