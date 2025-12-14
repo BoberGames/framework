@@ -5,7 +5,7 @@ import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import { CascadeModel } from "./CascadeModel";
 import { dispatcher } from "../../index";
 
-const FALLING_DURATION = 0.5;
+const FALLING_DURATION = 0.3;
 const STAGGER_DELAY = 0.1;
 
 export class CascadeView extends Container {
@@ -39,7 +39,7 @@ export class CascadeView extends Container {
 
             this.grid = this.createEmptyGrid(cols, rows);
 
-            await gsap.delayedCall(1, () => {});
+            await gsap.delayedCall(0.3, () => {});
 // 1) Generate new grid
             let newGrid = this.slotModel.generateRandomSymbolGrid(cols, rows);
 
@@ -236,24 +236,27 @@ export class CascadeView extends Container {
     }
 
     /** EXPLOSION */
-    public async explodeClusterFromClusters(clusters: { cells: { r:number, c:number }[] }[]) {
+    public async explodeClusterFromClusters(clusters: { cells: { r:number, c:number }[], hasWild: boolean }[]) {
         const coords: [number, number][] = [];
+        let hasWild = false;
+
         for (const cl of clusters) {
+            hasWild = cl.hasWild
             for (const { r, c } of cl.cells) {
                 coords.push([r, c]);
             }
         }
-        await this.explodeCluster(coords);
+        await this.explodeCluster(coords, hasWild);
     }
 
-    public async explodeCluster(coords: [number, number][]) {
+    public async explodeCluster(coords: [number, number][], hasWild: boolean) {
         const promises: Promise<void>[] = [];
 
         for (const [r, c] of coords) {
             const sym = this.grid[c][r];
             if (!sym) continue;
 
-            promises.push(sym.showWinAnim());
+            promises.push(sym.showWinAnim(hasWild));
             this.grid[c][r] = null;
             this.symsToDestroy.push(sym);
         }

@@ -3,6 +3,7 @@ import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 export interface Cluster {
     id: SymId;
     cells: { r: number; c: number }[];
+    hasWild: boolean
 }
 
 export class CascadeModel {
@@ -95,9 +96,7 @@ export class CascadeModel {
                     if (touchesWD) break;
                 }
 
-                if (touchesWD) {
-                    clusters.push({ id: target, cells: group });
-                }
+                clusters.push({ id: target, cells: group, hasWild: touchesWD });
             }
         }
 
