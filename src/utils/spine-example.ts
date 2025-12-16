@@ -1,5 +1,6 @@
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
-
+import { dispatcher } from "../index";
+import gsap from "gsap";
 export async function getSpine(): Promise<Spine> {
 
     const cactus = Spine.from({
@@ -70,8 +71,18 @@ export async function playAnticipation(spine: Spine): Promise<void> {
     runAnimationMixer(spine);
 }
 
-function playWin(): void {
+export async function playWin(spine: Spine): Promise<void> {
+    const entry = spine.state.setAnimation(0, "WIN", false);
 
+    // 🔥 emit at 50% of animation duration
+    const halfTime = entry.animationEnd * 0.5;
+
+    gsap.delayedCall(halfTime, () => {
+        dispatcher.emit("SHOOT");
+    });
+
+    await waitForComplete(entry);
+    runAnimationMixer(spine);
 }
 
 

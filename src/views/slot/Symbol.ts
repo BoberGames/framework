@@ -2,6 +2,8 @@ import { Container, DestroyOptions, Text } from "pixi.js";
 import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import gsap from "gsap";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
+import { randomInt } from "crypto";
+import { dispatcher } from "../../index";
 
 export class Symbol extends Container {
     public id: string = "";
@@ -129,26 +131,48 @@ export class Symbol extends Container {
     }
 
     private async showBalloonAnim(): Promise<void> {
-        if (this.spine) {
-            this.id = "BALLOON";
-            this.spine.state.clearListeners();
-            this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
-            await gsap.delayedCall(1.5, () => {});
-            const txt: Text = new Text("Kyp", {
-                fontFamily: "Arial",
-                fontSize: 80,
-                fill: 0xffffff,
-                fontWeight: "bold",
-                stroke: { color: '#4a1850', width: 5, join: 'round' }
-            })
-            txt.anchor.set(0.5);
-            this.addChild(txt);
-            this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
-            await gsap.to(txt, {width: 200, height: 200, alpha: 0, duration: .5, delay: 1});
-            txt.destroy();
-            await gsap.delayedCall(.5, () => {});
-        }
+        if (!this.spine) return;
+
+        this.id = "BALLOON";
+        this.spine.state.clearListeners();
+        this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
+        dispatcher.emit("SNEEZE");
+
+        const txt: Text = new Text("50X", {
+            fontFamily: "Arial",
+            fontSize: 80,
+            fill: 0xf6ff00,
+            fontWeight: "bold",
+            stroke: { color: '#ffffff', width: 5, join: 'round' }
+        });
+
+        txt.anchor.set(0.5);
+        this.addChildAt(txt, 0);
+
+        await new Promise<void>((resolve) => {
+            dispatcher.once("POP", async () => {
+                this.spine?.state.setAnimation(
+                    0,
+                    this.id + ReelCfg.animType.win,
+                    false
+                );
+
+                await gsap.to(txt, {
+                    width: 200,
+                    height: 200,
+                    alpha: 0,
+                    duration: 0.5,
+                    delay: 1,
+                });
+
+                txt.destroy();
+
+                await gsap.delayedCall(1.5, () => {});
+                resolve();
+            });
+        });
     }
+
 
     public destroy(options?: DestroyOptions) {
         gsap.killTweensOf(this.spine)

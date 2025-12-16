@@ -174,6 +174,7 @@
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">background/BACKGROUND.png</key>
+            <key type="filename">background/MULTIPLIER_PAD.png</key>
             <key type="filename">info/Info_logo.png</key>
             <key type="filename">info/continue.png</key>
             <key type="filename">info/info_bg.jpg</key>
@@ -194,7 +195,7 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">character/CACTUS DONE.png</key>
+            <key type="filename">character/spike.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>
@@ -203,24 +204,9 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>77,122,153,245</rect>
+                <rect>4,10,7,21</rect>
                 <key>scale9Paddings</key>
-                <rect>77,122,153,245</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">logo/LOGO.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>99,77,197,155</rect>
-                <key>scale9Paddings</key>
-                <rect>99,77,197,155</rect>
+                <rect>4,10,7,21</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -368,7 +354,6 @@
                 <array>
                     <filename>background</filename>
                     <filename>character</filename>
-                    <filename>logo</filename>
                     <filename>symbols</filename>
                     <filename>info</filename>
                 </array>

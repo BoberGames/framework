@@ -76,10 +76,10 @@ console.log(
         // await Assets.loadBundle(["sheet"]);
         //
 
-        const bg = new Background();
+        // const bg = new Background();
         const cascade = new CascadeView();
 
-        app.stage.addChild(bg);
+        // app.stage.addChild(bg);
         app.stage.addChild(cascade);
 
 

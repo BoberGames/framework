@@ -7,6 +7,8 @@ import { Background } from "./Background";
 import { CascadeView } from "./slot/CascadeView";
 import { StartScreen } from "./StartScreen";
 import { LogoView } from "./LogoView";
+import { RadialExplosion } from "../utils/ExplosionParticle";
+
 export class SplashView {
     public preLoadContainer: Container = new Container();
     private progressBar: ProgressBar | undefined;
@@ -122,7 +124,7 @@ export class SplashView {
 
     private onLoadComplete() {
         console.log("Loading finished (fake delay).");
-        const bg = new Background();
+        const bg = new Background(this.app);
         const cascade = new CascadeView();
         const logo = new LogoView();
         logo.x = bg.width - logo.width * .55;

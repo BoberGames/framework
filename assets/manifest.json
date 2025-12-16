@@ -20,6 +20,16 @@
       "id": "logo",
       "type": "spine",
       "path": "./assets/spine/Logo"
+    },
+    {
+      "id": "baseBg",
+      "type": "spine",
+      "path": "./assets/spine/DAY_BACKGROUND"
+    },
+    {
+      "id": "fsBg",
+      "type": "spine",
+      "path": "./assets/spine/NIGHT_BACKGROUND"
     }
   ]
 }

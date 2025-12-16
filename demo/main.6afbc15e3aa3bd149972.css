@@ -1,0 +1,1 @@
+*{margin:0;padding:0}body,html{background-color:#000;margin:0}#wrapper,body,html{height:100vh;overflow:hidden;width:100vw}#wrapper,canvas{display:flex;position:relative}canvas{height:100vh;overflow:hidden;width:100vw}input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
