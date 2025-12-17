@@ -37,6 +37,7 @@ export class Symbol extends Container {
     }
 
     private startIdleLoop(spineId: string): void {
+        if(this.id === "BALLOON") return
         this.spine?.state.setAnimation(
             0,
             spineId + ReelCfg.animType.idle,
@@ -54,6 +55,8 @@ export class Symbol extends Container {
     }
 
     public showLanding(): void {
+        if(this.id === "BALLOON") return
+
         if (this.spine) {
             this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
             this.spine.state.addListener({

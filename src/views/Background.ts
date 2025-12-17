@@ -6,6 +6,7 @@ import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
 import { RadialExplosion } from "../utils/ExplosionParticle";
 import gsap from "gsap";
+import * as fs from "node:fs";
 
 export class Background extends Container {
     private app: Application;
@@ -57,10 +58,36 @@ export class Background extends Container {
         const whiteBg = new Graphics().rect(bg.x, bg.y, bg.width, bg.height).fill(0xFFFFFF);
         whiteBg.alpha = 0.1;
 
+        const fsCont = new Container();
+        const fsBg = Spine.from({
+            skeleton: "fsBg:data",
+            atlas:    "fsBg:atlas",
+            scale: 1,
+        });
+
+        fsBg.setSize(bg.width, bg.height);
+        fsBg.position.set(bg.width * 0.5, bg.height * 0.5);
+        fsBg.state.setAnimation(0, "DESKTOPBG_NIGHT", true);
+
+        const lizzards = Spine.from({
+            skeleton: "lizzards:data",
+            atlas:    "lizzards:atlas",
+            scale: 0.65,
+        });
+
+        lizzards.position.set(bg.width * 0.92, bg.height * 0.84);
+        lizzards.state.setAnimation(0, "IDLE", true);
+        fsCont.addChild(fsBg, lizzards);
+        fsCont.scale.set(1.005);
+        fsCont.x -= 5;
+        fsCont.y -= 3;
+        fsCont.alpha = 0;
+
         this.addChild(bgSpine);
         this.addChild(bell);
         this.addChild(wind);
         this.addChild(whiteBg);
+        this.addChild(fsCont);
         this.addChild(bg_pad);
 
 
@@ -77,6 +104,8 @@ export class Background extends Container {
         //         feed.addMessage("CLUSTER of " + item.cells.length + "X " + ReelCfg.spineIds[item.id]);
         //     }
         // });
-
+        dispatcher.on("FS", ()=>{
+            gsap.to(fsCont, {alpha: 1, duration: 0.5})
+        })
     }
 }

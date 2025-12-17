@@ -40,6 +40,15 @@
       "id": "wind",
       "type": "spine",
       "path": "./assets/spine/DAY_BACKGROUND_WIND"
+    },
+    {
+      "id": "fsBg",
+      "type": "spine",
+      "path": "./assets/spine/NIGHT_BACKGROUND"
+    },{
+      "id": "lizzards",
+      "type": "spine",
+      "path": "./assets/spine/LIZARDS"
     }
   ]
 }

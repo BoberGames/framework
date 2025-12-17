@@ -15,6 +15,8 @@ export class CascadeView extends Container {
     private symbolSize = 180;
     private slotModel = new CascadeModel();
     private readyToDrop = true;
+    private spinCount = 0;
+
 
     /** count of non-winning consecutive spins */
     private nonWinningSpinStreak = 0;
@@ -26,11 +28,13 @@ export class CascadeView extends Container {
 
         // initial board
         this.showInitialScreen(this.slotModel.generateRandomSymbolGrid());
-
+        let hasScatter = false;
         /** SPIN HANDLER */
         dispatcher.on("SPIN", async () => {
             if (!this.readyToDrop) return;
             this.readyToDrop = false;
+
+            this.spinCount++; // ⬅️ global spin counter
 
             await this.clearBoard();
 
@@ -40,23 +44,31 @@ export class CascadeView extends Container {
             this.grid = this.createEmptyGrid(cols, rows);
 
             await gsap.delayedCall(0.3, () => {});
-// 1) Generate new grid
+
+            // 1) Generate base grid
             let newGrid = this.slotModel.generateRandomSymbolGrid(cols, rows);
 
-// 2) Check if we need to force cluster BEFORE dropping
-            if (this.nonWinningSpinStreak >= 2) {
+            // 2) 🎯 FORCE CLUSTER ON EVERY 3RD SPIN
+            if (this.spinCount % 3 === 0) {
                 newGrid = this.forceRandomBlobClusterOnGrid(newGrid);
-                this.nonWinningSpinStreak = 0; // reset spin counter
             }
 
-// 3) Drop prepared board
+            // 3) 🌟 FORCE 3× SC ON EVERY 5TH SPIN
+            if (this.spinCount % 5 === 0) {
+                hasScatter = true;
+                newGrid = this.forceRandomScatters(newGrid, 3);
+            }
+
+            // 4) Drop prepared board
             await this.dropNewBoard(newGrid);
 
-// 4) Run cascades as usual
-            await this.handleCascadesAfterDrop();
+            // 5) Run cascades as usual
+            await this.handleCascadesAfterDrop(hasScatter);
 
             this.readyToDrop = true;
         });
+
+
     }
 
     private forceRandomBlobClusterOnGrid(grid: SymId[][]): SymId[][] {
@@ -130,6 +142,40 @@ export class CascadeView extends Container {
     }
 
 
+    private forceRandomScatters(
+        grid: SymId[][],
+        count = 3
+    ): SymId[][] {
+        const cols = grid.length;
+        const rows = grid[0].length;
+
+        // collect all non-SC cells
+        const candidates: { c: number; r: number }[] = [];
+
+        for (let c = 0; c < cols; c++) {
+            for (let r = 0; r < rows; r++) {
+                if (grid[c][r] !== "SC") {
+                    candidates.push({ c, r });
+                }
+            }
+        }
+
+        if (candidates.length < count) return grid;
+
+        // shuffle candidates
+        for (let i = candidates.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+        }
+
+        // force SC in exactly `count` places
+        for (let i = 0; i < count; i++) {
+            const { c, r } = candidates[i];
+            grid[c][r] = "SC";
+        }
+
+        return grid;
+    }
 
 
     private createEmptyGrid(cols: number, rows: number) {
@@ -365,10 +411,11 @@ export class CascadeView extends Container {
     }
 
     /** MAIN CASCADE LOOP */
-    private async handleCascadesAfterDrop() {
+    /** MAIN CASCADE LOOP */
+    private async handleCascadesAfterDrop(hasScatter: boolean = false) {
         let clusters = this.detectClusters();
 
-        // Update spin streak: win = reset, no win = add streak
+        // Update spin streak
         if (clusters.length === 0) this.nonWinningSpinStreak++;
         else this.nonWinningSpinStreak = 0;
 
@@ -381,6 +428,33 @@ export class CascadeView extends Container {
 
             clusters = this.detectClusters();
         }
+
+        // 🌟 AFTER ALL CASCADES → PLAY SCATTER WINS
+        if (hasScatter) {
+            await this.playScatterWins();
+            dispatcher.emit("FS")
+        }
     }
+
+
+    private async playScatterWins(): Promise<void> {
+        const promises: Promise<void>[] = [];
+
+        for (let c = 0; c < this.grid.length; c++) {
+            for (let r = 0; r < this.grid[c].length; r++) {
+                const sym = this.grid[c][r];
+                if (!sym) continue;
+
+                if (sym.id === "SCATTER") {
+                    // No wild logic for scatter
+                    promises.push(sym.showWinAnim(false));
+                }
+            }
+        }
+
+        await Promise.all(promises);
+
+    }
+
 
 }

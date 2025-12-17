@@ -1,0 +1,23 @@
+LIZARDS.png
+size:242,543
+filter:Linear,Linear
+pma:true
+scale:0.5
+L 1
+bounds:2,220,172,321
+L 1  cloth
+bounds:176,225,23,51
+L 1 Mustache
+bounds:176,278,68,43
+rotate:90
+L 1 R arm
+bounds:176,348,48,65
+L 1 string
+bounds:176,415,126,56
+rotate:90
+L 2
+bounds:2,2,216,238
+rotate:90
+L 2 cloth
+bounds:201,232,16,44
+offsets:0,0,17,44
