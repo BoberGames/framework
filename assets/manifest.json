@@ -24,12 +24,22 @@
     {
       "id": "baseBg",
       "type": "spine",
-      "path": "./assets/spine/DAY_BACKGROUND"
+      "path": "./assets/spine/DAY_BACKGROUND_AND_BIRD"
     },
     {
       "id": "fsBg",
       "type": "spine",
       "path": "./assets/spine/NIGHT_BACKGROUND"
+    },
+    {
+      "id": "bell",
+      "type": "spine",
+      "path": "./assets/spine/DAY_BACKGROUND_BELL"
+    },
+    {
+      "id": "wind",
+      "type": "spine",
+      "path": "./assets/spine/DAY_BACKGROUND_WIND"
     }
   ]
 }

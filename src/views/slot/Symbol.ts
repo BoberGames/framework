@@ -2,7 +2,6 @@ import { Container, DestroyOptions, Text } from "pixi.js";
 import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import gsap from "gsap";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
-import { randomInt } from "crypto";
 import { dispatcher } from "../../index";
 
 export class Symbol extends Container {
@@ -26,59 +25,23 @@ export class Symbol extends Container {
             spineId !== ReelCfg.spineIds.SC &&
             this.id !== "BALLOON"
         ) {
+            this.spine.state.data.defaultMix = 0.25;
             this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
-            const delay = this.createNonRepeatingRandom();
-            gsap.delayedCall(delay(), ()=>{this.startRandomIdleLoop(spineId)});
+            gsap.delayedCall(3, ()=>{this.startIdleLoop(spineId)});
         } else {
             this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
         }
 
-        // this.img.anchor.set(0.5, 0.5);
         this.addChild(this.spine);
         this.id = spineId;
     }
 
-    private startRandomIdleLoop(spineId: string): void {
-        const playIdle = () => {
-            const repeatCount = gsap.utils.random(1, 3, 1); // integer 1–3
-            let played = 0;
-
-            const onComplete = () => {
-                played++;
-
-                if (played < repeatCount) {
-                    this.spine?.state.setAnimation(
-                        0,
-                        spineId + ReelCfg.animType.idle,
-                        false
-                    );
-                } else {
-                    // cleanup listener
-                    this.spine?.state.removeListener(listener);
-
-                    // schedule next random cycle
-                    scheduleNext();
-                }
-            };
-
-            const listener = { complete: onComplete };
-            this.spine?.state.addListener(listener);
-
-            // start first idle
-            this.spine?.state.setAnimation(
-                0,
-                spineId + ReelCfg.animType.idle,
-                false
-            );
-        };
-
-        const scheduleNext = () => {
-            const delay = this.createNonRepeatingRandom();
-            gsap.delayedCall(delay(), playIdle);
-        };
-
-        // initial random delay
-        scheduleNext();
+    private startIdleLoop(spineId: string): void {
+        this.spine?.state.setAnimation(
+            0,
+            spineId + ReelCfg.animType.idle,
+            true
+        );
     }
 
 
@@ -102,8 +65,7 @@ export class Symbol extends Container {
                         this.id !== ReelCfg.spineIds.SC &&
                         this.id !== "BALLOON"
                     ) {
-                        const delay = this.createNonRepeatingRandom();
-                        gsap.delayedCall(delay(), ()=>{this.startRandomIdleLoop(this.id)});
+                        gsap.delayedCall(3, ()=>{this.startIdleLoop(this.id)});
                     }
                 },
             });

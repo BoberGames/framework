@@ -8,6 +8,7 @@ import { CascadeView } from "./slot/CascadeView";
 import { StartScreen } from "./StartScreen";
 import { LogoView } from "./LogoView";
 import { RadialExplosion } from "../utils/ExplosionParticle";
+import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils/spine-example";
 
 export class SplashView {
     public preLoadContainer: Container = new Container();
@@ -36,8 +37,8 @@ export class SplashView {
             this.preLoadContainer.addChild(background, logo, hacksawLogo);
 
             this.app.stage.addChild(this.preLoadContainer);
-            await gsap.from(logo, {y: -300, alpha: 0, duration: 0.5});
-            gsap.to(hacksawLogo, {alpha: 1, duration: 0.5});
+            await gsap.from(logo, { y: -300, alpha: 0, duration: 0.5 });
+            gsap.to(hacksawLogo, { alpha: 1, duration: 0.5 });
 
             this.asset.load("assets/manifest.json");
             this.showProgressBar();
@@ -84,17 +85,13 @@ export class SplashView {
             progress: 0,
         });
 
-        this.progressBar.position.set(
-            (this.preLoadContainer.width - this.progressBar.width) * 0.5,
-            800
-        );
+        this.progressBar.position.set((this.preLoadContainer.width - this.progressBar.width) * 0.5, 800);
         this.preLoadContainer.addChild(this.progressBar);
 
         this.progressTicker = () => {
             this.fakeProgress += (this.realProgress - this.fakeProgress) * 0.05;
 
-            if (this.progressBar)
-                this.progressBar.progress = this.fakeProgress;
+            if (this.progressBar) this.progressBar.progress = this.fakeProgress;
 
             if (this.fakeProgress >= 90 && this.realProgress >= 100 && !this.loaded) {
                 this.loaded = true;
@@ -108,12 +105,10 @@ export class SplashView {
 
         this.app.ticker.add(this.progressTicker);
 
-
         dispatcher.on("progress", (p: number) => {
             this.realProgress = p * 100;
         });
     }
-
 
     private stopProgressTicker() {
         if (this.progressTicker) {
@@ -122,17 +117,63 @@ export class SplashView {
         }
     }
 
-    private onLoadComplete() {
+    private async onLoadComplete() {
         console.log("Loading finished (fake delay).");
         const bg = new Background(this.app);
         const cascade = new CascadeView();
         const logo = new LogoView();
-        logo.x = bg.width - logo.width * .55;
+        logo.x = bg.width - logo.width * 0.55;
         logo.y = bg.height * 0.28;
 
         this.app.stage.addChild(bg);
         this.app.stage.addChild(cascade);
         this.app.stage.addChild(logo);
+
+        const cactus = await getSpine();
+        cactus.position.set(bg.children[0].width * 0.17, bg.children[0].height * 0.86);
+        cactus.state.setAnimation(0, "IDLE_1_DAY", true);
+
+        this.app.stage.addChild(cactus);
+
+        let mixer: ReturnType<typeof runAnimationMixer> | null = null;
+
+        function startMixer() {
+            // safety: never double-start
+            mixer?.stop();
+            mixer = runAnimationMixer(cactus);
+        }
+
+        function stopMixer() {
+            mixer?.stop();
+            mixer = null;
+        }
+        startMixer();
+        dispatcher.on("ANTICIPATE", async () => {
+            stopMixer(); // 🔴 kill ambient loop
+
+            await playAnticipation(cactus);
+
+            startMixer(); // 🟢 fresh mixer instance
+        });
+
+        dispatcher.on("SNEEZE", async () => {
+            stopMixer(); // 🔴 kill ambient loop
+
+            await playWin(cactus);
+
+            startMixer(); // 🟢 fresh mixer instance
+        });
+        const part = new RadialExplosion(this.app);
+        this.app.stage.addChildAt(part, this.app.stage.getChildIndex(cactus) + 1);
+
+        dispatcher.on("SHOOT", async () => {
+            part.explode(
+                cactus.x,
+                cactus.y - 200,
+                [Texture.from("character/spike")],
+                80, // number of particles
+            );
+        });
 
         this.app.stage.addChild(new StartScreen());
     }

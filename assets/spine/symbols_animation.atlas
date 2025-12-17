@@ -1,332 +1,316 @@
 symbols_animation.png
-size:1857,1286
+size:1873,1286
 filter:Linear,Linear
 pma:true
 scale:0.5
 1
-bounds:1391,339,87,97
+bounds:524,2,87,97
 offsets:3,5,92,108
-rotate:90
 10
-bounds:820,633,268,201
-rotate:90
+bounds:356,534,274,207
 10 light
-bounds:362,985,299,232
-rotate:90
+bounds:1388,1052,299,232
 2
-bounds:2,2,164,176
+bounds:1096,386,164,176
 offsets:2,0,167,180
-rotate:90
 3
-bounds:584,613,286,234
+bounds:388,743,286,234
 offsets:3,1,292,237
-rotate:90
 4
-bounds:649,239,281,252
+bounds:2,25,281,252
 offsets:10,3,295,264
-rotate:90
 5
-bounds:2,522,376,305
+bounds:388,979,376,305
 offsets:2,1,380,308
-rotate:90
 6
-bounds:2,168,352,345
-rotate:90
+bounds:2,579,352,345
 7
-bounds:2,900,384,358
-rotate:90
+bounds:2,926,384,358
 8
-bounds:349,212,308,298
-rotate:90
+bounds:2,279,308,298
 A
-bounds:1314,709,189,200
+bounds:1446,844,195,206
 A light
-bounds:896,1052,219,232
-BACK EARING
-bounds:1457,260,34,28
+bounds:632,522,219,232
 rotate:90
+BACK EARING
+bounds:312,549,34,28
 BODY
-bounds:1177,535,97,155
+bounds:367,2,97,155
 rotate:90
 Balloonn pop 1
-bounds:903,267,254,233
-rotate:90
+bounds:312,299,254,233
 Balloonn pop 2
-bounds:309,578,320,273
-rotate:90
+bounds:1066,1011,320,273
 Balloonn s
-bounds:1117,1073,210,211
+bounds:866,540,210,211
 Circle
-bounds:1329,1075,209,209
+bounds:1069,800,209,209
 D BACK
-bounds:1677,933,178,171
-D BACK EAR
-bounds:1686,96,46,48
-D BANDANA
-bounds:1391,428,111,58
-D BANDANA 2
-bounds:1215,635,34,39
+bounds:1639,635,178,171
 rotate:90
+D BACK EAR
+bounds:1019,2,46,48
+rotate:90
+D BANDANA
+bounds:1812,635,111,58
+rotate:90
+D BANDANA 2
+bounds:1388,1011,34,39
 D EYELIDS BLINK
-bounds:1130,534,98,45
+bounds:1814,461,98,45
 rotate:90
 D EYES BACK
-bounds:1391,296,95,41
+bounds:1488,167,95,41
 D EYESHINES
-bounds:693,522,89,21
-rotate:90
+bounds:2,2,89,21
 D FRAME FINAL
-bounds:1659,378,196,196
+bounds:367,101,196,196
 D FRONT EAR
-bounds:778,903,67,81
-D HAIR
-bounds:1588,193,66,50
-D HEAD
-bounds:970,904,146,125
+bounds:1253,50,67,81
 rotate:90
+D HAIR
+bounds:863,2,66,50
+D HEAD
+bounds:565,136,146,125
 D LEFT PUPIL
-bounds:764,215,9,9
+bounds:1162,146,9,9
 D NECK
-bounds:894,523,108,107
+bounds:863,54,108,107
 rotate:90
 D NOSE
-bounds:1795,147,47,31
+bounds:1540,2,47,31
 D RIGHT PUPIL
-bounds:1137,3,9,9
+bounds:1721,88,9,9
 D SOMBRERO
-bounds:1138,325,207,91
+bounds:772,313,207,91
 rotate:90
 D TONGUE
-bounds:1226,673,31,28
-rotate:90
+bounds:729,282,31,28
 EYE SHINES
-bounds:649,212,85,25
-EYELIDS
-bounds:1003,523,108,38
+bounds:356,839,85,25
 rotate:90
+EYELIDS
+bounds:1378,170,108,38
 EYELIDS BLINK 1
-bounds:1511,916,113,47
+bounds:1263,161,113,47
 offsets:0,0,113,48
 EYELIDS BLINK 2
-bounds:1391,488,115,45
+bounds:1730,816,115,45
 offsets:1,0,117,46
 EYES BACK
-bounds:1363,250,92,44
+bounds:1779,162,92,44
 FRAME BACK
-bounds:1677,1106,178,178
+bounds:1634,455,178,178
 FRONT EARING
-bounds:1673,14,40,78
+bounds:1793,321,40,78
+rotate:90
 HAIR BACK
-bounds:1473,12,45,51
+bounds:1540,35,45,51
 HAIR FRONT
-bounds:1677,576,175,182
+bounds:1689,1109,175,182
+rotate:90
 HEAD
-bounds:1540,1156,128,128
+bounds:613,6,128,128
 J
-bounds:1231,330,158,203
+bounds:1280,800,164,209
 J light
-bounds:947,5,188,234
+bounds:676,743,188,234
 K
-bounds:1334,535,172,197
+bounds:865,276,178,203
 rotate:90
 K light
-bounds:1504,309,150,169
+bounds:1460,304,150,169
+rotate:90
 LEFT PUPIL
-bounds:1073,247,13,18
+bounds:1446,824,13,18
 Light 1
-bounds:695,903,81,81
+bounds:1378,87,81,81
 Light big
-bounds:596,986,298,298
+bounds:766,986,298,298
 MOUTH
-bounds:349,168,42,21
-rotate:90
+bounds:93,2,42,21
 NECKLESS
-bounds:1058,634,59,35
+bounds:1812,284,59,35
 Q
-bounds:1505,714,170,200
+bounds:1461,636,176,206
 Q light
-bounds:1023,671,201,231
+bounds:866,753,201,231
 RIGHT PUPIL
-bounds:1054,242,17,23
+bounds:1793,296,17,23
 ROSE
-bounds:1520,2,79,74
-rotate:90
+bounds:1461,91,79,74
 Sc A
-bounds:1800,58,43,46
-rotate:90
+bounds:1233,2,43,46
 Sc C
-bounds:1734,97,45,48
+bounds:1687,2,45,48
 Sc E
-bounds:1626,918,45,49
-rotate:90
+bounds:1785,40,45,49
 Sc R
-bounds:561,524,52,50
-rotate:90
+bounds:931,2,52,50
 Sc S
-bounds:1421,12,51,50
-rotate:90
+bounds:1587,41,51,50
 Sc T blue
-bounds:1168,634,35,45
+bounds:1638,3,35,45
 rotate:90
 Sc T green
-bounds:1655,146,32,45
-rotate:90
+bounds:1687,52,32,45
 Sc Tale
-bounds:847,903,66,81
+bounds:1069,4,66,81
 offsets:0,0,69,81
+rotate:90
 Sc body
-bounds:1540,965,189,127
+bounds:1730,863,189,127
 offsets:0,0,232,127
 rotate:90
 Sc head
-bounds:1097,907,143,110
-rotate:90
+bounds:827,164,143,110
 Sc ribbon 1
-bounds:1023,633,36,33
-rotate:90
+bounds:565,101,36,33
 Sc ribbon 2
-bounds:1119,634,47,35
+bounds:1589,4,47,35
 Sc ribbon 3
-bounds:1529,245,49,62
+bounds:1445,23,49,62
 Sc ribbon 4
-bounds:1488,250,57,39
+bounds:1336,60,57,39
 rotate:90
 Sc ribbon 5
-bounds:613,522,78,89
+bounds:1162,64,78,89
+rotate:90
 Star
-bounds:1032,242,20,23
+bounds:1424,1027,20,23
 T BACK EAR
-bounds:1167,251,72,57
+bounds:1814,561,72,57
 offsets:6,0,78,57
 rotate:90
 T BODY BACK
-bounds:1533,594,126,118
+bounds:743,9,126,118
+rotate:90
 T BODY FRONT
-bounds:1368,914,159,47
-rotate:90
+bounds:568,263,159,47
 T BOW TIE
-bounds:309,522,66,54
+bounds:1812,216,66,54
+rotate:90
 T CIGARETTE
-bounds:1702,147,91,31
+bounds:772,280,91,31
 T Cigaert light
-bounds:736,212,26,25
+bounds:827,137,26,25
 T EYELIDS
-bounds:1545,83,95,41
-rotate:90
+bounds:1682,165,95,41
 T EYELIDS BLINK
-bounds:1502,83,95,41
-rotate:90
+bounds:1585,165,95,41
 T EYES BACK
-bounds:1715,2,92,40
-rotate:90
+bounds:1263,119,92,40
 T EYESHINES
-bounds:1088,250,77,15
+bounds:729,263,77,15
 T FRAME
-bounds:577,3,207,199
+bounds:1260,591,207,199
 rotate:90
 T FRAME BACK
-bounds:1209,911,157,160
-T FRONT EAR
-bounds:1502,180,63,69
+bounds:1631,296,157,160
 rotate:90
+T FRONT EAR
+bounds:1777,91,63,69
 T HAT
-bounds:1319,4,66,59
+bounds:1812,748,66,59
+rotate:90
 T Head
-bounds:180,3,191,163
+bounds:1070,221,191,163
 T LEFT PUPIL
-bounds:764,226,11,11
+bounds:1721,75,11,11
 T RIGHT PUPIL
-bounds:1148,3,9,9
+bounds:568,523,9,9
 T smoke stright
-bounds:377,523,53,182
+bounds:1689,1054,53,182
 rotate:90
 TALE
-bounds:896,986,72,64
+bounds:1658,99,72,64
 V COLLAR BACK
-bounds:1781,103,64,42
+bounds:1496,25,64,42
 offsets:16,37,97,79
-V COLLAR FRONT
-bounds:362,900,101,83
-V EYELIDS BLINK
-bounds:915,905,79,40
 rotate:90
+V COLLAR FRONT
+bounds:1059,72,101,83
+V EYELIDS BLINK
+bounds:1152,22,79,40
 V EYES BACK
-bounds:1757,18,77,41
+bounds:1542,88,77,41
 rotate:90
 V EYESHINES
-bounds:903,241,72,24
-V FRAME
-bounds:1656,180,196,196
-V FRAME BACK
-bounds:1677,760,178,171
-V HEAD
-bounds:1271,250,78,90
+bounds:356,765,72,24
 rotate:90
+V FRAME
+bounds:1262,393,196,196
+V FRAME BACK
+bounds:1461,456,178,171
+rotate:90
+V HEAD
+bounds:1793,363,78,90
 V LEFT EYEBROW
-bounds:1002,242,28,23
+bounds:1842,137,28,23
 offsets:0,5,28,28
 V LEFT PUPIL
-bounds:584,578,9,8
-V LOWER BEAK
-bounds:830,522,109,62
+bounds:603,125,9,8
 rotate:90
+V LOWER BEAK
+bounds:1062,157,109,62
 V LOWER EYELID
-bounds:1588,93,51,45
+bounds:1640,40,51,45
 rotate:90
 V PONCHO
-bounds:1533,480,124,112
+bounds:713,137,124,112
 offsets:8,0,132,112
+rotate:90
 V RIGHT EYEBROW
-bounds:1387,8,55,32
+bounds:985,2,55,32
 offsets:0,0,56,32
 rotate:90
 V RIGHT PUPIL
-bounds:1159,3,9,9
+bounds:312,288,9,9
 V SOMBRERO
-bounds:1417,916,157,92
-rotate:90
+bounds:1448,210,157,92
 V TOOTHPICK
-bounds:977,241,24,23
+bounds:1070,431,24,23
 offsets:0,6,24,31
-rotate:90
 V UPPER BEAK
-bounds:716,523,112,88
+bounds:972,162,112,88
 offsets:0,4,112,92
+rotate:90
 V WING BACK
-bounds:1588,146,65,45
+bounds:1278,3,65,45
 offsets:0,0,68,52
 V WING FRONT
-bounds:1588,245,66,62
+bounds:1377,23,66,62
 offsets:0,0,103,86
 V inside mouth
-bounds:1226,251,72,43
+bounds:1732,91,72,43
 rotate:90
 V neck shine
-bounds:1256,634,71,70
+bounds:1585,93,71,70
 offsets:1,2,79,73
 V tongue
-bounds:584,588,27,23
-W BOTTLE
-bounds:1137,14,180,234
-W SHOT 1
-bounds:1596,3,88,75
+bounds:1070,402,27,23
 rotate:90
+W BOTTLE
+bounds:1078,564,180,234
+W SHOT 1
+bounds:1173,144,88,75
 W SHOT 2
-bounds:1043,530,85,101
+bounds:972,59,85,101
 W WILD
-bounds:465,901,228,82
+bounds:866,456,228,82
 W WILD light 1
-bounds:865,2,235,80
+bounds:285,42,235,80
 rotate:90
 W WILD light 2
-bounds:1226,706,203,86
-rotate:90
+bounds:1607,208,203,86
 W WILD light 3
-bounds:778,2,235,85
+bounds:1643,815,235,85
 rotate:90
 balloon
-bounds:373,2,202,208
+bounds:568,312,202,208
 balloon square
-bounds:1319,65,181,183
+bounds:1263,210,181,183
+rotate:90
 light 2
-bounds:1635,94,49,50
+bounds:1734,39,49,50
