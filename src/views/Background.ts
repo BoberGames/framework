@@ -21,7 +21,7 @@ export class Background extends Container {
         const bg = new Sprite(Assets.get("background/BACKGROUND"));
         const bg_pad = new Sprite(Assets.get("background/MULTIPLIER_PAD"));
         bg_pad.setSize(bg.width, bg.height);
-
+        bg_pad.alpha = 0;
         bg.interactive = true;
         bg.on("pointerdown", () => {
             dispatcher.emit("SPIN");
@@ -72,10 +72,10 @@ export class Background extends Container {
         const lizzards = Spine.from({
             skeleton: "lizzards:data",
             atlas:    "lizzards:atlas",
-            scale: 0.65,
+            scale: 0.6,
         });
 
-        lizzards.position.set(bg.width * 0.92, bg.height * 0.84);
+        lizzards.position.set(bg.width * 0.92, bg.height * 0.83);
         lizzards.state.setAnimation(0, "IDLE", true);
         fsCont.addChild(fsBg, lizzards);
         fsCont.scale.set(1.005);
@@ -104,8 +104,18 @@ export class Background extends Container {
         //         feed.addMessage("CLUSTER of " + item.cells.length + "X " + ReelCfg.spineIds[item.id]);
         //     }
         // });
-        dispatcher.on("FS", ()=>{
-            gsap.to(fsCont, {alpha: 1, duration: 0.5})
-        })
+        let fsVisible = false;
+
+        dispatcher.on("FS", () => {
+            fsVisible = !fsVisible;
+
+            gsap.killTweensOf(fsCont);
+
+            gsap.to(fsCont, {
+                alpha: fsVisible ? 1 : 0,
+                duration: 0.5
+            });
+            dispatcher.emit("RESET_FS")
+        });
     }
 }

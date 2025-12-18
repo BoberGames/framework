@@ -32,7 +32,7 @@ export class CascadeModel {
     /** Full BFS cluster detection with WD acting as connector */
     public getClusters(grid: (SymId | null)[][]): Cluster[] {
         const rows = grid.length;
-        if (rows === 0) return [];
+        if (!rows) return [];
         const cols = grid[0].length;
 
         const visited = new Set<string>();
@@ -47,22 +47,21 @@ export class CascadeModel {
 
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                const k = key(r, c);
-                if (visited.has(k)) continue;
+                const start = grid[r][c];
+                const startKey = key(r, c);
 
-                const target = grid[r][c];
-                visited.add(k);
-
-                // ❌ cannot start from empty or WD
-                if (!target || target === ReelCfg.spineIds.WD) continue;
+                if (!start || start === ReelCfg.spineIds.WD) continue;
+                if (visited.has(startKey)) continue;
 
                 const queue = [{ r, c }];
-                const group: { r: number; c: number }[] = [];
-                let hasWild = false;
+                const baseCells: { r: number; c: number }[] = [];
+                const wildCells: { r: number; c: number }[] = [];
+
+                visited.add(startKey);
 
                 while (queue.length) {
                     const cur = queue.shift()!;
-                    group.push(cur);
+                    baseCells.push(cur);
 
                     for (const [dr, dc] of dirs) {
                         const nr = cur.r + dr;
@@ -70,40 +69,56 @@ export class CascadeModel {
 
                         if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
 
-                        const nk = key(nr, nc);
-                        if (visited.has(nk)) continue;
-
                         const cell = grid[nr][nc];
+                        const k = key(nr, nc);
 
-                        // ✅ same symbol → normal BFS
-                        if (cell === target) {
-                            visited.add(nk);
-                            queue.push({ r: nr, c: nc });
-                            continue;
-                        }
+                        if (!cell) continue;
 
-                        // 🌟 WD → include it AND continue search through it
+                        // 🌟 WD → include AND traverse through it
                         if (cell === ReelCfg.spineIds.WD) {
-                            hasWild = true;
-                            visited.add(nk);
-                            queue.push({ r: nr, c: nc });
+                            // add wild if not already added
+                            if (!wildCells.some(w => w.r === nr && w.c === nc)) {
+                                wildCells.push({ r: nr, c: nc });
+                            }
+
+                            // 🔑 traverse beyond WD
+                            for (const [wr, wc] of dirs) {
+                                const xr = nr + wr;
+                                const xc = nc + wc;
+                                if (xr < 0 || xr >= rows || xc < 0 || xc >= cols) continue;
+
+                                const next = grid[xr][xc];
+                                const nk = key(xr, xc);
+
+                                if (next === start && !visited.has(nk)) {
+                                    visited.add(nk);
+                                    queue.push({ r: xr, c: xc });
+                                }
+                            }
+
                             continue;
                         }
 
-                        // ❌ other symbol → ignore
+                        // ✅ same symbol
+                        if (cell === start && !visited.has(k)) {
+                            visited.add(k);
+                            queue.push({ r: nr, c: nc });
+                        }
                     }
                 }
 
                 clusters.push({
-                    id: target,
-                    cells: group,
-                    hasWild,
+                    id: start,
+                    cells: [...baseCells, ...wildCells],
+                    hasWild: wildCells.length > 0,
                 });
             }
         }
 
         return clusters;
     }
+
+
 
 
 

@@ -29,6 +29,7 @@ export class CascadeView extends Container {
         // initial board
         this.showInitialScreen(this.slotModel.generateRandomSymbolGrid());
         let hasScatter = false;
+        dispatcher.on("RESET_FS", () => hasScatter = false);
         /** SPIN HANDLER */
         dispatcher.on("SPIN", async () => {
             if (!this.readyToDrop) return;
@@ -265,7 +266,9 @@ export class CascadeView extends Container {
 
                     this.grid[c][r] = s;
                     this.addChild(s);
-
+                    if(s.id === ReelCfg.spineIds.SC || s.id === ReelCfg.spineIds.WD) {
+                        s.zIndex = 50;
+                    }
                     gsap.to(s, {
                         y: this.getSymbolY(r),
                         duration: FALLING_DURATION,
@@ -282,32 +285,51 @@ export class CascadeView extends Container {
     }
 
     /** EXPLOSION */
-    public async explodeClusterFromClusters(clusters: { cells: { r:number, c:number }[], hasWild: boolean }[]) {
+    public async explodeClusterFromClusters(
+        clusters: { cells: { r:number, c:number }[], hasWild: boolean }[]
+    ) {
         const coords: [number, number][] = [];
         let hasWild = false;
 
         for (const cl of clusters) {
-            hasWild = cl.hasWild
-            for (const { r, c } of cl.cells) {
-                coords.push([r, c]);
-            }
+            hasWild ||= cl.hasWild; // ✅ accumulate
+            for (const { r, c } of cl.cells) coords.push([r, c]);
         }
+
         await this.explodeCluster(coords, hasWild);
     }
 
     public async explodeCluster(coords: [number, number][], hasWild: boolean) {
-        const promises: Promise<void>[] = [];
+        const syms: Symbol[] = [];
 
         for (const [r, c] of coords) {
             const sym = this.grid[c][r];
             if (!sym) continue;
 
-            promises.push(sym.showWinAnim(hasWild));
             this.grid[c][r] = null;
             this.symsToDestroy.push(sym);
+            syms.push(sym);
         }
 
-        await Promise.all(promises);
+        // ✅ Phase 1: all symbols play WIN first
+        await Promise.all(syms.map(s => s.playWinOnly()));
+
+        // ✅ Phase 2: only if wild exists, then balloon phase
+        if (hasWild) {
+            // single shared POP signal (no race per symbol)
+            const popSignal = new Promise<void>((resolve) => {
+                dispatcher.once("POP", () => resolve());
+            });
+
+            // start balloon landing + register waits BEFORE sneeze
+            const balloonPromises = syms.map(s => s.playBalloonAfterPop(popSignal));
+
+            // emit sneeze after everyone has subscribed
+            gsap.delayedCall(0.1, () => dispatcher.emit("SNEEZE"));
+
+            await Promise.all(balloonPromises);
+        }
+
         this.removeExploded();
     }
 
@@ -411,17 +433,19 @@ export class CascadeView extends Container {
     }
 
     /** MAIN CASCADE LOOP */
-    /** MAIN CASCADE LOOP */
     private async handleCascadesAfterDrop(hasScatter: boolean = false) {
         let clusters = this.detectClusters();
 
         // Update spin streak
         if (clusters.length === 0) this.nonWinningSpinStreak++;
         else this.nonWinningSpinStreak = 0;
+        let anticipateShown = false;
 
         while (clusters.length > 0) {
-            dispatcher.emit("ANTICIPATE");
-            dispatcher.emit("CLUSTER", clusters);
+            if(!anticipateShown) {
+                anticipateShown = true;
+                dispatcher.emit("ANTICIPATE");
+            }
 
             await this.explodeClusterFromClusters(clusters);
             await this.dropHangingSymbols();

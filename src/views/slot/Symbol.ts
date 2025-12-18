@@ -3,11 +3,13 @@ import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import gsap from "gsap";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
 import { dispatcher } from "../../index";
+import { randomInt } from "crypto";
+import { getrandomInt } from "../../utils/Utils";
 
 export class Symbol extends Container {
     public id: string = "";
     private spine: Spine | null = null;
-
+    private savedScale: number;
     constructor(symId: SymId) {
         super();
         const spineId = ReelCfg.spineIds[symId as keyof typeof ReelCfg.spineIds] ?? "SCATTER";
@@ -19,6 +21,10 @@ export class Symbol extends Container {
             scale: spineId.length > 2 ? 0.45 : 0.6,
         });
 
+        if(spineId === ReelCfg.spineIds.SC || spineId === ReelCfg.spineIds.WD) {
+            this.spine.scale.set(1.2);
+        }
+        this.savedScale = this.spine.scale.x;
         if (
             spineId.length > 2 &&
             spineId !== ReelCfg.spineIds.WD &&
@@ -58,6 +64,7 @@ export class Symbol extends Container {
         if(this.id === "BALLOON") return
 
         if (this.spine) {
+            this.spine.state.clearListeners();
             this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
             this.spine.state.addListener({
                 complete: () => {
@@ -78,20 +85,69 @@ export class Symbol extends Container {
     public async showWinAnim(showBalloon: boolean): Promise<void> {
         return new Promise<void>((resolve) => {
             if (this.spine) {
-                this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
-
+                this.spine.state.clearListeners();
                 this.spine.state.addListener({
                     complete: async () => {
                         if (showBalloon) {
+                            this.spine?.scale.set(this.savedScale);
                             await this.showBalloonAnim();
                         }
-
-                        requestAnimationFrame(() => {
-                            resolve();
-                        });
+                        resolve();
                     },
                 });
+                this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
+
             }
+        });
+    }
+
+    public async playBalloonAfterPop(popSignal: Promise<void>): Promise<void> {
+        if (!this.spine) return;
+
+        // transform to balloon + landing immediately (but no "POP" listener race here)
+        this.id = "BALLOON";
+        this.spine.state.clearListeners();
+        this.spine.scale.set(1);
+        this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
+
+        const txt = new Text(getrandomInt(1,100).toString() + "X", {
+            fontFamily: "Arial",
+            fontSize: 80,
+            fill: 0xf6ff00,
+            fontWeight: "bold",
+            stroke: { color: "#000000", width: 5, join: "round" },
+        });
+        txt.alpha = 0;
+        txt.anchor.set(0.5);
+        this.addChildAt(txt, 0);
+
+        // ✅ wait for the shared POP moment (guaranteed after subscriptions)
+        await popSignal;
+
+        this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
+        gsap.to(txt, { alpha: 1, duration: 0.3 });
+
+        await gsap.to(txt, {
+            width: 200,
+            height: 200,
+            alpha: 0,
+            duration: 0.5,
+            delay: 1,
+        });
+
+        txt.destroy();
+    }
+
+    public playWinOnly(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            if (!this.spine) return resolve();
+
+            this.spine.state.clearListeners();
+            this.spine.state.addListener({
+                complete: () => resolve(),
+            });
+
+            this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
         });
     }
 
@@ -101,21 +157,23 @@ export class Symbol extends Container {
         this.id = "BALLOON";
         this.spine.state.clearListeners();
         this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
-        dispatcher.emit("SNEEZE");
 
         const txt: Text = new Text("50X", {
             fontFamily: "Arial",
             fontSize: 80,
             fill: 0xf6ff00,
             fontWeight: "bold",
-            stroke: { color: '#ffffff', width: 5, join: 'round' }
+            stroke: { color: '#000000', width: 5, join: 'round' }
         });
+        txt.alpha = 0;
 
         txt.anchor.set(0.5);
         this.addChildAt(txt, 0);
 
         await new Promise<void>((resolve) => {
             dispatcher.once("POP", async () => {
+                gsap.to(txt, {alpha: 1, duration: 0.3});
+
                 this.spine?.state.setAnimation(
                     0,
                     this.id + ReelCfg.animType.win,
@@ -132,7 +190,6 @@ export class Symbol extends Container {
 
                 txt.destroy();
 
-                await gsap.delayedCall(1.5, () => {});
                 resolve();
             });
         });
