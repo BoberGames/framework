@@ -1,15 +1,16 @@
-import { Container, DestroyOptions, Text } from "pixi.js";
+import { Container, DestroyOptions, Point, Text, Texture } from "pixi.js";
 import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import gsap from "gsap";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
 import { dispatcher } from "../../index";
-import { randomInt } from "crypto";
 import { getrandomInt } from "../../utils/Utils";
-
+import { SpriteNumberText } from "../../utils/SpriteNumberText";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 export class Symbol extends Container {
     public id: string = "";
     private spine: Spine | null = null;
     private savedScale: number;
+    private fnt: any;
     constructor(symId: SymId) {
         super();
         const spineId = ReelCfg.spineIds[symId as keyof typeof ReelCfg.spineIds] ?? "SCATTER";
@@ -21,7 +22,7 @@ export class Symbol extends Container {
             scale: spineId.length > 2 ? 0.45 : 0.6,
         });
 
-        if(spineId === ReelCfg.spineIds.SC || spineId === ReelCfg.spineIds.WD) {
+        if (spineId === ReelCfg.spineIds.SC || spineId === ReelCfg.spineIds.WD) {
             this.spine.scale.set(1.2);
         }
         this.savedScale = this.spine.scale.x;
@@ -33,24 +34,23 @@ export class Symbol extends Container {
         ) {
             this.spine.state.data.defaultMix = 0.25;
             this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
-            gsap.delayedCall(3, ()=>{this.startIdleLoop(spineId)});
+            gsap.delayedCall(3, () => {
+                this.startIdleLoop(spineId);
+            });
         } else {
             this.spine.state.setAnimation(0, spineId + ReelCfg.animType.landing, false);
         }
 
         this.addChild(this.spine);
         this.id = spineId;
+
+        gsap.registerPlugin(MotionPathPlugin);
     }
 
     private startIdleLoop(spineId: string): void {
-        if(this.id === "BALLOON") return
-        this.spine?.state.setAnimation(
-            0,
-            spineId + ReelCfg.animType.idle,
-            true
-        );
+        if (this.id === "BALLOON") return;
+        this.spine?.state.setAnimation(0, spineId + ReelCfg.animType.idle, true);
     }
-
 
     public setId(symId: string): void {
         // this.img.texture = Assets.get("symbols/" + symId);
@@ -61,7 +61,7 @@ export class Symbol extends Container {
     }
 
     public showLanding(): void {
-        if(this.id === "BALLOON") return
+        if (this.id === "BALLOON") return;
 
         if (this.spine) {
             this.spine.state.clearListeners();
@@ -75,7 +75,9 @@ export class Symbol extends Container {
                         this.id !== ReelCfg.spineIds.SC &&
                         this.id !== "BALLOON"
                     ) {
-                        gsap.delayedCall(3, ()=>{this.startIdleLoop(this.id)});
+                        gsap.delayedCall(3, () => {
+                            this.startIdleLoop(this.id);
+                        });
                     }
                 },
             });
@@ -96,12 +98,11 @@ export class Symbol extends Container {
                     },
                 });
                 this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
-
             }
         });
     }
 
-    public async playBalloonAfterPop(popSignal: Promise<void>): Promise<void> {
+    public async playBalloonAfterPop(popSignal: Promise<void>, win: number): Promise<void> {
         if (!this.spine) return;
 
         // transform to balloon + landing immediately (but no "POP" listener race here)
@@ -110,31 +111,38 @@ export class Symbol extends Container {
         this.spine.scale.set(1);
         this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
 
-        const txt = new Text(getrandomInt(1,100).toString() + "X", {
-            fontFamily: "Arial",
-            fontSize: 80,
-            fill: 0xf6ff00,
-            fontWeight: "bold",
-            stroke: { color: "#000000", width: 5, join: "round" },
-        });
+        const txt = this.getMulti("x" + win.toString());
         txt.alpha = 0;
-        txt.anchor.set(0.5);
         this.addChildAt(txt, 0);
 
-        // ✅ wait for the shared POP moment (guaranteed after subscriptions)
         await popSignal;
 
         this.spine.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
-        gsap.to(txt, { alpha: 1, duration: 0.3 });
+        await gsap.to(txt, { alpha: 1, duration: 0.3 });
+        const stage = this.parent?.parent
+        if(stage) {
+            this.moveToGlobal(txt, stage);
 
-        await gsap.to(txt, {
-            width: 200,
-            height: 200,
-            alpha: 0,
-            duration: 0.5,
-            delay: 1,
-        });
-
+            await gsap.to(txt, {
+                duration: 0.8,
+                delay: 0.6,
+                ease: "power3.in",
+                motionPath: {
+                    path: [
+                        { x: txt.x, y: txt.y },
+                        {
+                            x: txt.x + gsap.utils.random(-80, 80),
+                            y: txt.y - gsap.utils.random(60, 120),
+                        },
+                        {
+                            x: stage.width * 0.1,
+                            y: stage.height * 0.1,
+                        }
+                    ],
+                    curviness: 1.5,
+                },
+            });
+        }
         txt.destroy();
     }
 
@@ -158,31 +166,19 @@ export class Symbol extends Container {
         this.spine.state.clearListeners();
         this.spine.state.setAnimation(0, this.id + ReelCfg.animType.landing, false);
 
-        const txt: Text = new Text("50X", {
-            fontFamily: "Arial",
-            fontSize: 80,
-            fill: 0xf6ff00,
-            fontWeight: "bold",
-            stroke: { color: '#000000', width: 5, join: 'round' }
-        });
+        const txt = this.getMulti("x50") as Container;
         txt.alpha = 0;
 
-        txt.anchor.set(0.5);
         this.addChildAt(txt, 0);
 
         await new Promise<void>((resolve) => {
             dispatcher.once("POP", async () => {
-                gsap.to(txt, {alpha: 1, duration: 0.3});
+                gsap.to(txt, { alpha: 1, duration: 0.3 });
 
-                this.spine?.state.setAnimation(
-                    0,
-                    this.id + ReelCfg.animType.win,
-                    false
-                );
-
+                this.spine?.state.setAnimation(0, this.id + ReelCfg.animType.win, false);
                 await gsap.to(txt, {
-                    width: 200,
-                    height: 200,
+                    width: 0,
+                    height: 0,
                     alpha: 0,
                     duration: 0.5,
                     delay: 1,
@@ -195,11 +191,10 @@ export class Symbol extends Container {
         });
     }
 
-
     public destroy(options?: DestroyOptions) {
-        gsap.killTweensOf(this.spine)
+        gsap.killTweensOf(this.spine);
         this.spine?.state?.clearListeners();
-        if(this.spine) {
+        if (this.spine) {
             this.removeChild(this.spine);
             this.spine.destroy();
         }
@@ -207,11 +202,7 @@ export class Symbol extends Container {
         super.destroy(options);
     }
 
-    private createNonRepeatingRandom(
-        min = 1,
-        max = 15,
-        minGap = 3
-    ): () => number {
+    private createNonRepeatingRandom(min = 1, max = 15, minGap = 3): () => number {
         let last: number | null = null;
 
         return function getRandom(): number {
@@ -230,4 +221,39 @@ export class Symbol extends Container {
         };
     }
 
+    private getMulti(txt: string): SpriteNumberText {
+        const digitTextures: Record<string, Texture> = {
+            "0": Texture.from("fonts/multi/multi_0"),
+            "1": Texture.from("fonts/multi/multi_1"),
+            "2": Texture.from("fonts/multi/multi_2"),
+            "9": Texture.from("fonts/multi/multi_9"),
+            "3": Texture.from("fonts/multi/multi_3"),
+            "4": Texture.from("fonts/multi/multi_4"),
+            "5": Texture.from("fonts/multi/multi_5"),
+            "6": Texture.from("fonts/multi/multi_6"),
+            "7": Texture.from("fonts/multi/multi_7"),
+            "8": Texture.from("fonts/multi/multi_8"),
+            "x": Texture.from("fonts/multi/multi_x"),
+        };
+
+
+        return new SpriteNumberText({
+            digitTextures,
+            text: txt,
+            spacing: 2,
+            align: "center",
+            maxHeight: 70, // optional: auto fit height
+        });
+    }
+
+    public moveToGlobal(child: any, targetContainer: Container): void {
+        const globalPos = child.getGlobalPosition(new Point());
+
+        child.parent?.removeChild(child);
+
+        const localPos = targetContainer.toLocal(globalPos);
+
+        child.position.copyFrom(localPos);
+        targetContainer.addChild(child);
+    }
 }

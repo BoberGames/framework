@@ -4,9 +4,10 @@ import { TextFeed } from "../TextFeed";
 import { ReelCfg } from "../cfg/ReelCfg";
 import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils/spine-example";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
-import { RadialExplosion } from "../utils/ExplosionParticle";
 import gsap from "gsap";
-import * as fs from "node:fs";
+import { SpriteNumberText } from "../utils/SpriteNumberText";
+import { Wins } from "./Wins";
+import { FreeSpinPopUp } from "./FreeSpinPopUp";
 
 export class Background extends Container {
     private app: Application;
@@ -21,10 +22,11 @@ export class Background extends Container {
         const bg = new Sprite(Assets.get("background/BACKGROUND"));
         const bg_pad = new Sprite(Assets.get("background/MULTIPLIER_PAD"));
         bg_pad.setSize(bg.width, bg.height);
-        bg_pad.alpha = 0;
+        bg_pad.alpha = 1;
         bg.interactive = true;
         bg.on("pointerdown", () => {
             dispatcher.emit("SPIN");
+            dispatcher.emit("COUNT_MULTI", 0)
         });
 
         this.addChild(bg);
@@ -91,6 +93,47 @@ export class Background extends Container {
         this.addChild(bg_pad);
 
 
+        const digitTextures: Record<string, Texture> = {
+            "0": Texture.from("fonts/multi/multi_0"),
+            "1": Texture.from("fonts/multi/multi_1"),
+            "2": Texture.from("fonts/multi/multi_2"),
+            "9": Texture.from("fonts/multi/multi_9"),
+            "3": Texture.from("fonts/multi/multi_3"),
+            "4": Texture.from("fonts/multi/multi_4"),
+            "5": Texture.from("fonts/multi/multi_5"),
+            "6": Texture.from("fonts/multi/multi_6"),
+            "7": Texture.from("fonts/multi/multi_7"),
+            "8": Texture.from("fonts/multi/multi_8"),
+            "x": Texture.from("fonts/multi/multi_x"),
+        };
+
+
+        let multiCounter = new SpriteNumberText({
+            digitTextures,
+            text: "x0",
+            spacing: 2,
+            align: "center",
+            maxHeight: 70, // optional: auto fit height
+        })
+        multiCounter.x = bg.width * 0.182;
+        multiCounter.y = bg.height * 0.16;
+
+        this.addChild(multiCounter);
+        let currentCount = 0;
+
+        dispatcher.on("COUNT_MULTI", async (count: number) => {
+            if(currentCount === 0 && count === 0) return
+            currentCount = count;
+            if(count > 0) {
+                await multiCounter.shuffleTo(count.toString(), { duration: 1000, speed: 40, staggerMs: 15 });
+            }
+            multiCounter.text = "x" + count;
+            multiCounter.x = bg.width * 0.182;
+            multiCounter.y = bg.height * 0.16;
+        });
+
+
+
         // const feed = new TextFeed();
         //
         // feed.container.y = this.height - feed.container.height;
@@ -115,6 +158,11 @@ export class Background extends Container {
                 alpha: fsVisible ? 1 : 0,
                 duration: 0.5
             });
+            if(!fsVisible) {
+                dispatcher.emit("FS_OUTRO")
+            } else {
+                dispatcher.emit("FS_INTRO")
+            }
             dispatcher.emit("RESET_FS")
         });
     }

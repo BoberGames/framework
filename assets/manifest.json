@@ -45,10 +45,16 @@
       "id": "fsBg",
       "type": "spine",
       "path": "./assets/spine/NIGHT_BACKGROUND"
-    },{
+    },
+    {
       "id": "lizzards",
       "type": "spine",
       "path": "./assets/spine/LIZARDS"
+    },
+    {
+      "id": "fonts",
+      "type": "json",
+      "path": "./assets/fonts/fonts.json"
     }
   ]
 }

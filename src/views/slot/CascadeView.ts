@@ -4,6 +4,7 @@ import { Symbol } from "./Symbol";
 import { ReelCfg, SymId } from "../../cfg/ReelCfg";
 import { CascadeModel } from "./CascadeModel";
 import { dispatcher } from "../../index";
+import { getrandomInt } from "../../utils/Utils";
 
 const FALLING_DURATION = 0.3;
 const STAGGER_DELAY = 0.1;
@@ -300,6 +301,8 @@ export class CascadeView extends Container {
     }
 
     public async explodeCluster(coords: [number, number][], hasWild: boolean) {
+        let totalWin = 0;
+
         const syms: Symbol[] = [];
 
         for (const [r, c] of coords) {
@@ -316,18 +319,20 @@ export class CascadeView extends Container {
 
         // ✅ Phase 2: only if wild exists, then balloon phase
         if (hasWild) {
-            // single shared POP signal (no race per symbol)
             const popSignal = new Promise<void>((resolve) => {
                 dispatcher.once("POP", () => resolve());
             });
 
-            // start balloon landing + register waits BEFORE sneeze
-            const balloonPromises = syms.map(s => s.playBalloonAfterPop(popSignal));
+            const balloonPromises = syms.map(s => {
+                const singleWin = getrandomInt(1, 15);
+                totalWin += singleWin;
+                return s.playBalloonAfterPop(popSignal, singleWin); // <-- return!
+            });
 
-            // emit sneeze after everyone has subscribed
-            gsap.delayedCall(0.1, () => dispatcher.emit("SNEEZE"));
+            await gsap.delayedCall(0.3, () => dispatcher.emit("SNEEZE"));
 
             await Promise.all(balloonPromises);
+            dispatcher.emit("COUNT_MULTI", totalWin)
         }
 
         this.removeExploded();
@@ -440,7 +445,7 @@ export class CascadeView extends Container {
         if (clusters.length === 0) this.nonWinningSpinStreak++;
         else this.nonWinningSpinStreak = 0;
         let anticipateShown = false;
-
+        let win = clusters.length > 0;
         while (clusters.length > 0) {
             if(!anticipateShown) {
                 anticipateShown = true;
@@ -452,7 +457,9 @@ export class CascadeView extends Container {
 
             clusters = this.detectClusters();
         }
-
+        if(win) {
+            dispatcher.emit("WIN", this.randomPrice(1, 9000).toFixed(2));
+        }
         // 🌟 AFTER ALL CASCADES → PLAY SCATTER WINS
         if (hasScatter) {
             await this.playScatterWins();
@@ -460,6 +467,16 @@ export class CascadeView extends Container {
         }
     }
 
+    private randomPrice(min: number, max: number): number {
+        const centsMin = Math.round(min * 100);
+        const centsMax = Math.round(max * 100);
+
+        const cents = Math.floor(
+            Math.random() * (centsMax - centsMin + 1)
+        ) + centsMin;
+
+        return cents / 100;
+    }
 
     private async playScatterWins(): Promise<void> {
         const promises: Promise<void>[] = [];

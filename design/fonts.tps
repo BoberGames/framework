@@ -26,7 +26,7 @@
             </struct>
         </array>
         <key>allowRotation</key>
-        <true/>
+        <false/>
         <key>shapeDebug</key>
         <false/>
         <key>dpi</key>
@@ -80,9 +80,9 @@
         <key>maxTextureSize</key>
         <QSize>
             <key>width</key>
-            <int>4096</int>
+            <int>2048</int>
             <key>height</key>
-            <int>4096</int>
+            <int>2048</int>
         </QSize>
         <key>fixedTextureSize</key>
         <QSize>
@@ -124,7 +124,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>../assets/sheet.json</filename>
+                <filename>../assets/fonts/fonts.json</filename>
             </struct>
         </map>
         <key>multiPackMode</key>
@@ -151,7 +151,7 @@
         <key>globalSpriteSettings</key>
         <struct type="SpriteSettings">
             <key>scale</key>
-            <double>1</double>
+            <double>0.8</double>
             <key>scaleMode</key>
             <enum type="ScaleMode">Smooth</enum>
             <key>extrude</key>
@@ -161,7 +161,7 @@
             <key>trimMargin</key>
             <uint>1</uint>
             <key>trimMode</key>
-            <enum type="SpriteSettings::TrimMode">Trim</enum>
+            <enum type="SpriteSettings::TrimMode">None</enum>
             <key>tracerTolerance</key>
             <int>200</int>
             <key>heuristicMask</key>
@@ -173,14 +173,59 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">background/BACKGROUND.png</key>
-            <key type="filename">background/MULTIPLIER_PAD.png</key>
-            <key type="filename">info/Info_logo.png</key>
-            <key type="filename">info/continue.png</key>
-            <key type="filename">info/info_bg.jpg</key>
-            <key type="filename">info/info_maxwin.png</key>
-            <key type="filename">info/info_scatter.png</key>
-            <key type="filename">info/info_wild.png</key>
+            <key type="filename">fonts/gold/gold_0.png</key>
+            <key type="filename">fonts/gold/gold_1.png</key>
+            <key type="filename">fonts/gold/gold_2.png</key>
+            <key type="filename">fonts/gold/gold_3.png</key>
+            <key type="filename">fonts/gold/gold_4.png</key>
+            <key type="filename">fonts/gold/gold_5.png</key>
+            <key type="filename">fonts/gold/gold_6.png</key>
+            <key type="filename">fonts/gold/gold_7.png</key>
+            <key type="filename">fonts/gold/gold_8.png</key>
+            <key type="filename">fonts/gold/gold_9.png</key>
+            <key type="filename">fonts/gold/gold_coma.png</key>
+            <key type="filename">fonts/gold/gold_dot.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>90,97,179,193</rect>
+                <key>scale9Paddings</key>
+                <rect>90,97,179,193</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">fonts/multi/multi_0.png</key>
+            <key type="filename">fonts/multi/multi_1.png</key>
+            <key type="filename">fonts/multi/multi_2.png</key>
+            <key type="filename">fonts/multi/multi_3.png</key>
+            <key type="filename">fonts/multi/multi_4.png</key>
+            <key type="filename">fonts/multi/multi_5.png</key>
+            <key type="filename">fonts/multi/multi_6.png</key>
+            <key type="filename">fonts/multi/multi_7.png</key>
+            <key type="filename">fonts/multi/multi_8.png</key>
+            <key type="filename">fonts/multi/multi_9.png</key>
+            <key type="filename">fonts/multi/multi_x.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>14,25,28,50</rect>
+                <key>scale9Paddings</key>
+                <rect>14,25,28,50</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">freespins/FS_INTRO.png</key>
+            <key type="filename">freespins/FS_OUTRO.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>
@@ -192,156 +237,6 @@
                 <rect>480,270,960,540</rect>
                 <key>scale9Paddings</key>
                 <rect>480,270,960,540</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">character/spike.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>4,10,7,21</rect>
-                <key>scale9Paddings</key>
-                <rect>4,10,7,21</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/10.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>44,37,87,74</rect>
-                <key>scale9Paddings</key>
-                <rect>44,37,87,74</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/A.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>35,37,69,73</rect>
-                <key>scale9Paddings</key>
-                <rect>35,37,69,73</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/DOGGY.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>48,47,96,93</rect>
-                <key>scale9Paddings</key>
-                <rect>48,47,96,93</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/J.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>29,37,59,75</rect>
-                <key>scale9Paddings</key>
-                <rect>29,37,59,75</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/K.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>35,39,71,78</rect>
-                <key>scale9Paddings</key>
-                <rect>35,39,71,78</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/LOLITA.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>48,48,97,97</rect>
-                <key>scale9Paddings</key>
-                <rect>48,48,97,97</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/Q.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>35,41,69,81</rect>
-                <key>scale9Paddings</key>
-                <rect>35,41,69,81</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/TAPIR.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>50,48,99,95</rect>
-                <key>scale9Paddings</key>
-                <rect>50,48,99,95</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
-            <key type="filename">symbols/VULTURE.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>47,48,93,95</rect>
-                <key>scale9Paddings</key>
-                <rect>47,48,93,95</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
@@ -352,10 +247,8 @@
             <struct type="SpriteSheet">
                 <key>files</key>
                 <array>
-                    <filename>background</filename>
-                    <filename>character</filename>
-                    <filename>symbols</filename>
-                    <filename>info</filename>
+                    <filename>fonts</filename>
+                    <filename>freespins</filename>
                 </array>
             </struct>
         </map>

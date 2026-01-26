@@ -9,6 +9,8 @@ import { StartScreen } from "./StartScreen";
 import { LogoView } from "./LogoView";
 import { RadialExplosion } from "../utils/ExplosionParticle";
 import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils/spine-example";
+import { Wins } from "./Wins";
+import { FreeSpinPopUp } from "./FreeSpinPopUp";
 
 export class SplashView {
     public preLoadContainer: Container = new Container();
@@ -122,12 +124,51 @@ export class SplashView {
         const bg = new Background(this.app);
         const cascade = new CascadeView();
         const logo = new LogoView();
-        logo.x = bg.width - logo.width * 0.55;
-        logo.y = bg.height * 0.28;
+        logo.x = bg.children[0].width - logo.width * 0.55;
+        logo.y = bg.children[0].height * 0.28;
 
         this.app.stage.addChild(bg);
         this.app.stage.addChild(cascade);
         this.app.stage.addChild(logo);
+        const wins = new Wins();
+        this.app.stage.addChild(wins);
+        dispatcher.on("WIN", (win)=>{
+            wins.showTotalWin(win);
+            wins.x = bg.children[0].width * 0.45;
+            wins.y = bg.children[0].height * 0.35;
+        });
+
+        dispatcher.on("FS_INTRO", ()=>{
+            const pop = new FreeSpinPopUp(Texture.from("freespins/FS_INTRO"), {
+                x: bg.children[0].width * 0.5,
+                y: bg.children[0].height * 0.5,
+                scale: 1.2,
+            });
+
+            this.app.stage.addChild(pop);
+            pop.play();
+
+            pop.eventMode = "static";
+            pop.on("pointerdown", ()=>{
+                pop.hide()
+            });
+        })
+
+        dispatcher.on("FS_OUTRO", ()=>{
+            const pop = new FreeSpinPopUp(Texture.from("freespins/FS_OUTRO"), {
+                x: bg.children[0].width * 0.5,
+                y: bg.children[0].height * 0.5,
+                scale: 1.2,
+            });
+
+            this.app.stage.addChild(pop);
+            pop.play();
+
+            pop.eventMode = "static";
+            pop.on("pointerdown", ()=>{
+                pop.hide()
+            });
+        })
 
         const cactus = await getSpine();
         cactus.position.set(bg.children[0].width * 0.17, bg.children[0].height * 0.86);

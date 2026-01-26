@@ -1,8 +1,7 @@
 import "./style.css";
-import { Application, Assets, AssetsManifest, EventEmitter } from "pixi.js";
+import { Application, EventEmitter } from "pixi.js";
 import "@esotericsoftware/spine-pixi-v8";
 
-import { Background } from "./views/Background";
 import { CascadeView } from "./views/slot/CascadeView";
 import { SplashView } from "./views/SplashView";
 
