@@ -6,6 +6,19 @@ import { dispatcher } from "../../index";
 import { getrandomInt } from "../../utils/Utils";
 import { SpriteNumberText } from "../../utils/SpriteNumberText";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
+type FlyToOptions = {
+    delay?: number;
+    targetX: number;
+    targetY: number;
+    // feel tuning
+    minArc?: number;       // px
+    maxArc?: number;       // px
+    overshootPx?: number;  // px
+    startScale?: number;   // if omitted, uses txt.scale.x
+    endScale?: number;     // final scale
+    travel?: number;       // main travel duration
+};
+
 export class Symbol extends Container {
     public id: string = "";
     private spine: Spine | null = null;
@@ -14,6 +27,8 @@ export class Symbol extends Container {
     constructor(symId: SymId) {
         super();
         const spineId = ReelCfg.spineIds[symId as keyof typeof ReelCfg.spineIds] ?? "SCATTER";
+
+        gsap.registerPlugin(MotionPathPlugin);
 
         // Center the spine object on screen.
         this.spine = Spine.from({
@@ -123,25 +138,16 @@ export class Symbol extends Container {
         if(stage) {
             this.moveToGlobal(txt, stage);
 
-            await gsap.to(txt, {
-                duration: 0.8,
-                delay: 0.6,
-                ease: "power3.in",
-                motionPath: {
-                    path: [
-                        { x: txt.x, y: txt.y },
-                        {
-                            x: txt.x + gsap.utils.random(-80, 80),
-                            y: txt.y - gsap.utils.random(60, 120),
-                        },
-                        {
-                            x: stage.width * 0.1,
-                            y: stage.height * 0.1,
-                        }
-                    ],
-                    curviness: 1.5,
-                },
+            await this.flyTextToTarget(txt, {
+                delay: 0,
+                targetX: stage.width * 0.1,
+                targetY: stage.height * 0.1,
+                travel: 1,
+                endScale: 0.1,
+                overshootPx: 0,
             });
+
+
         }
         txt.destroy();
     }
@@ -242,7 +248,7 @@ export class Symbol extends Container {
             text: txt,
             spacing: 2,
             align: "center",
-            maxHeight: 70, // optional: auto fit height
+            maxHeight: 90, // optional: auto fit height
         });
     }
 
@@ -256,4 +262,95 @@ export class Symbol extends Container {
         child.position.copyFrom(localPos);
         targetContainer.addChild(child);
     }
+
+    private normalize(x: number, y: number) {
+        const len = Math.hypot(x, y) || 1;
+        return { x: x / len, y: y / len, len };
+    }
+
+    private async flyTextToTarget(
+        txt: Container,
+        {
+            delay = 0,
+            targetX,
+            targetY,
+            minArc = 40,
+            maxArc = 140,
+            overshootPx = 26,
+            travel = 0.85,
+            startScale,
+            endScale = 0.55,
+        }: FlyToOptions,
+    ): Promise<void> {
+
+        gsap.killTweensOf(txt);
+
+        // safety against flicker
+        txt.alpha = Math.max(txt.alpha ?? 1, 0.001);
+
+        const sx = txt.x;
+        const sy = txt.y;
+        const dx = targetX - sx;
+        const dy = targetY - sy;
+
+        const n = this.normalize(dx, dy);
+        const dir = { x: n.x, y: n.y };
+        const dist = n.len;
+
+        // perpendicular vector
+        const perp = { x: -dir.y, y: dir.x };
+
+        // distance-based curvature (prevents wild bends)
+        const arcBase = gsap.utils.clamp(minArc, maxArc, dist * 0.22);
+        const side =
+            (Math.random() < 0.5 ? -1 : 1) *
+            gsap.utils.random(0.65, 1.15);
+
+        const c1 = {
+            x: sx + dx * 0.18 + perp.x * arcBase * side,
+            y: sy + dy * 0.18 + perp.y * arcBase * side,
+        };
+
+        const c2 = {
+            x: sx + dx * 0.72 + perp.x * arcBase * 0.35 * side,
+            y: sy + dy * 0.72 + perp.y * arcBase * 0.35 * side,
+        };
+
+        const overshoot = {
+            x: targetX + dir.x * overshootPx,
+            y: targetY + dir.y * overshootPx,
+        };
+
+        const path = [
+            { x: sx, y: sy },
+            c1,
+            c2,
+            overshoot,
+        ];
+
+        const start = startScale ?? txt.scale.x;
+
+        const tl = gsap.timeline({ delay });
+
+        // small alpha guard (prevents blink)
+        tl.to(txt, { alpha: 1, duration: 0.08, overwrite: true }, 0);
+
+        // PHASE 1 — orbital capture
+        tl.to(txt, {
+            duration: travel,
+            ease: "power4.in",
+            motionPath: {
+                path,
+                type: "cubic",
+                autoRotate: false,
+                curviness: 2,
+            },
+            x: overshoot.x,
+            y: overshoot.y,
+            overwrite: true,
+        }, 0);
+
+        await tl.then();
+    }
+
 }

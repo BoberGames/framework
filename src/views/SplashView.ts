@@ -11,6 +11,7 @@ import { RadialExplosion } from "../utils/ExplosionParticle";
 import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils/spine-example";
 import { Wins } from "./Wins";
 import { FreeSpinPopUp } from "./FreeSpinPopUp";
+import { BigWinsScreen } from "./winManager/BigWinsScene";
 
 export class SplashView {
     public preLoadContainer: Container = new Container();
@@ -132,12 +133,17 @@ export class SplashView {
         this.app.stage.addChild(logo);
         const wins = new Wins();
         this.app.stage.addChild(wins);
+        const bigwin = new BigWinsScreen(this.app)
+
         dispatcher.on("WIN", (win)=>{
-            wins.showTotalWin(win);
-            wins.x = bg.children[0].width * 0.45;
-            wins.y = bg.children[0].height * 0.35;
+            // wins.showTotalWin(win);
+            // wins.x = bg.children[0].width * 0.45;
+            // wins.y = bg.children[0].height * 0.35;
+            bigwin.showWinAnimation(5999);
         });
 
+        bigwin.init();
+        bigwin.position.set(bg.children[0].width * 0.5, bg.children[0].height * 0.5);
         dispatcher.on("FS_INTRO", ()=>{
             const pop = new FreeSpinPopUp(Texture.from("freespins/FS_INTRO"), {
                 x: bg.children[0].width * 0.5,
@@ -175,6 +181,7 @@ export class SplashView {
         cactus.state.setAnimation(0, "IDLE_1_DAY", true);
 
         this.app.stage.addChild(cactus);
+        this.app.stage.addChild(bigwin);
 
         let mixer: ReturnType<typeof runAnimationMixer> | null = null;
 

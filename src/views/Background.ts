@@ -1,13 +1,8 @@
 import { Application, Assets, Container, Graphics, Sprite, Texture } from "pixi.js";
 import { dispatcher } from "../index";
-import { TextFeed } from "../TextFeed";
-import { ReelCfg } from "../cfg/ReelCfg";
-import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils/spine-example";
 import { Spine } from "@esotericsoftware/spine-pixi-v8";
 import gsap from "gsap";
 import { SpriteNumberText } from "../utils/SpriteNumberText";
-import { Wins } from "./Wins";
-import { FreeSpinPopUp } from "./FreeSpinPopUp";
 
 export class Background extends Container {
     private app: Application;
@@ -24,6 +19,7 @@ export class Background extends Container {
         bg_pad.setSize(bg.width, bg.height);
         bg_pad.alpha = 1;
         bg.interactive = true;
+
         bg.on("pointerdown", () => {
             dispatcher.emit("SPIN");
             dispatcher.emit("COUNT_MULTI", 0)
@@ -39,6 +35,7 @@ export class Background extends Container {
 
         bgSpine.setSize(bg.width, bg.height);
         bgSpine.position.set(bg.width * 0.5, bg.height * 0.5);
+
         bgSpine.state.setAnimation(0, "DESKTOPBG_DAY_BIRD", true);
 
         const bell = Spine.from({
@@ -108,7 +105,7 @@ export class Background extends Container {
         };
 
 
-        let multiCounter = new SpriteNumberText({
+        const multiCounter = new SpriteNumberText({
             digitTextures,
             text: "x0",
             spacing: 2,
@@ -116,7 +113,7 @@ export class Background extends Container {
             maxHeight: 70, // optional: auto fit height
         })
         multiCounter.x = bg.width * 0.182;
-        multiCounter.y = bg.height * 0.16;
+        multiCounter.y = bg.height * 0.15;
 
         this.addChild(multiCounter);
         let currentCount = 0;
@@ -125,11 +122,16 @@ export class Background extends Container {
             if(currentCount === 0 && count === 0) return
             currentCount = count;
             if(count > 0) {
-                await multiCounter.shuffleTo(count.toString(), { duration: 1000, speed: 40, staggerMs: 15 });
+                await multiCounter.countTo(count, 2000, {
+                    pulse: true,
+                    pulseScale: 1.12,
+                    pulseMs: 140,
+                    showDecimals: false,
+                });
             }
             multiCounter.text = "x" + count;
             multiCounter.x = bg.width * 0.182;
-            multiCounter.y = bg.height * 0.16;
+            multiCounter.y = bg.height * 0.15;
         });
 
 

@@ -55,6 +55,11 @@
       "id": "fonts",
       "type": "json",
       "path": "./assets/fonts/fonts.json"
+    },
+    {
+      "id": "bigwins",
+      "type": "spine",
+      "path": "./assets/spine/WINS"
     }
   ]
 }
