@@ -12,6 +12,7 @@ import { getSpine, playAnticipation, playWin, runAnimationMixer } from "../utils
 import { Wins } from "./Wins";
 import { FreeSpinPopUp } from "./FreeSpinPopUp";
 import { BigWinsScreen } from "./winManager/BigWinsScene";
+import { PixiTilt3D } from "../utils/PixiTilt3D";
 
 export class SplashView {
     public preLoadContainer: Container = new Container();
@@ -128,9 +129,27 @@ export class SplashView {
         logo.x = bg.children[0].width - logo.width * 0.55;
         logo.y = bg.children[0].height * 0.28;
 
+        const tiltView = new PixiTilt3D(this.app, {
+            width: 1920,
+            height: 1080,
+            maxTiltDeg: 8,
+            perspectiveOffset: 36,
+            scaleOnHover: 1.01,
+            smoothing: 0.12,
+            verticesX: 18,
+            verticesY: 18,
+            liveTexture: true
+        });
+
+
         this.app.stage.addChild(bg);
-        this.app.stage.addChild(cascade);
+        this.app.stage.addChild(tiltView);
+
+        tiltView.addSourceChild(cascade);
+
         this.app.stage.addChild(logo);
+
+
         const wins = new Wins();
         this.app.stage.addChild(wins);
         const bigwin = new BigWinsScreen(this.app)
@@ -213,13 +232,17 @@ export class SplashView {
         });
         const part = new RadialExplosion(this.app);
         this.app.stage.addChildAt(part, this.app.stage.getChildIndex(cactus) + 1);
-
+        cactus.interactive = true;
+        cactus.on("pointerdown", ()=>{
+            dispatcher.emit("SHOOT");
+        })
         dispatcher.on("SHOOT", async () => {
             part.explode(
                 cactus.x,
                 cactus.y - 200,
                 [Texture.from("character/spike")],
-                80, // number of particles
+                80,
+                0
             );
         });
 

@@ -1,0 +1,61 @@
+NIGHT_BACKGROUND.png
+size:4096,4096
+filter:Linear,Linear
+pma:true
+BACK
+bounds:2,2860,1920,1080
+CANDLES
+bounds:2,2010,1920,848
+offsets:1,1,1922,850
+FLAGS
+bounds:1924,2777,727,112
+offsets:1,1,729,114
+FLAMES
+bounds:2,1371,1889,637
+offsets:1,1,1891,639
+LIGHT 1
+bounds:3840,3435,505,162
+rotate:90
+LIGHT 2
+bounds:2,2,117,87
+LIGHT 3
+bounds:438,463,211,111
+LIGHT 4
+bounds:2,91,182,264
+LIGHT 5
+bounds:801,1161,407,208
+LIGHT 6
+bounds:2,357,434,217
+bell
+bounds:4004,3626,62,50
+offsets:1,1,64,52
+candle lights
+bounds:1924,3230,1914,710
+flag1
+bounds:801,1071,215,88
+flag2
+bounds:2149,2682,126,93
+flag3
+bounds:1210,1300,197,69
+flag4
+bounds:2653,2777,258,112
+flag5
+bounds:3840,3244,189,110
+rotate:90
+flag6
+bounds:1924,2448,177,70
+flag7
+bounds:4004,3678,262,79
+rotate:90
+flag8
+bounds:2913,2819,108,70
+ground light
+bounds:1924,2891,1920,337
+offsets:1,13,1922,356
+light
+bounds:2,576,797,793
+mask
+bounds:186,256,85,99
+offsets:1,2,87,102
+mask bird
+bounds:1924,2520,223,255

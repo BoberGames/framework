@@ -1,0 +1,64 @@
+WINS.png
+size:1836,1022
+filter:Linear,Linear
+pma:true
+scale:0.5
+1
+bounds:642,161,50,50
+2
+bounds:1555,427,47,50
+3
+bounds:1595,349,31,50
+rotate:90
+4
+bounds:642,83,13,50
+rotate:90
+5
+bounds:1463,336,31,50
+rotate:90
+6
+bounds:1494,369,47,50
+BIG WIN LEYERS
+bounds:2,50,545,161
+C group
+bounds:1376,110,226,210
+MASK 1
+bounds:695,479,961,541
+MASK 2
+bounds:695,24,679,453
+MEGA WIN LEYERS
+bounds:2,213,687,172
+SUPER WIN LEYERS
+bounds:1658,322,698,176
+rotate:90
+Star
+bounds:1595,382,43,40
+rotate:90
+blure 1
+bounds:549,77,91,134
+blure 2
+bounds:1376,409,68,116
+rotate:90
+blure 3
+bounds:549,2,73,120
+rotate:90
+c1
+bounds:642,98,48,61
+c2
+bounds:1376,335,35,32
+c3
+bounds:1427,361,46,34
+rotate:90
+c4
+bounds:1376,369,38,49
+rotate:90
+c5
+bounds:1494,421,59,56
+offsets:0,32,59,88
+c6
+bounds:1604,441,51,36
+c7
+bounds:1555,369,56,38
+rotate:90
+ray
+bounds:2,387,691,633

@@ -1,0 +1,30 @@
+{
+    "name": "Loading Manifest",
+    "items": [
+        {
+            "id": "loading_bg",
+            "type": "image",
+            "path": "./assets/loading/loading_bg.jpg"
+        },
+        {
+            "id": "loader_logo",
+            "type": "image",
+            "path": "./assets/loading/loader_logo.png"
+        },
+        {
+            "id": "loader_frame",
+            "type": "image",
+            "path": "./assets/loading/loader_frame.png"
+        },
+        {
+            "id": "loader_bar",
+            "type": "image",
+            "path": "./assets/loading/loader_bar.png"
+        },
+        {
+            "id": "loading_hacksaw",
+            "type": "image",
+            "path": "./assets/loading/loading_hacksaw.png"
+        }
+    ]
+}

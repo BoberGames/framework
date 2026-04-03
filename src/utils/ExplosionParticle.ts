@@ -20,28 +20,52 @@ export class RadialExplosion extends Container {
         app.ticker.add(this.update);
     }
 
+    /**
+     * direction:
+     * 0 = right
+     * Math.PI * 0.5 = down
+     * Math.PI = left
+     * -Math.PI * 0.5 = up
+     */
     public explode(
         x: number,
         y: number,
         textures: Texture[],
-        count = 50
+        count = 50,
+        direction = -Math.PI / 2 // default: upward blast
     ): void {
-        const step = (Math.PI * 2) / count;
         dispatcher.emit("POP");
+
+        const arc = (Math.PI * 2) / 3; // 1/3 of a circle = 120 degrees
+        const halfArc = arc / 2;
+
         for (let i = 0; i < count; i++) {
-            const angle = i * step;
-            const speed = 60 + Math.random() * 6;
+            // Random angle inside the cone
+            const angle = direction + (Math.random() * arc - halfArc);
+
+            // More random shotgun-like speed
+            const speed = 40 + Math.random() * 80;
+
+            // Small random spawn offset so particles do not all start from exact same point
+            const spawnRadius = Math.random() * 8;
+            const spawnAngle = Math.random() * Math.PI * 2;
+
+            const px = x + Math.cos(spawnAngle) * spawnRadius;
+            const py = y + Math.sin(spawnAngle) * spawnRadius;
+
+            // Random particle scale
+            const scale = 0.7 + Math.random() * 0.8;
 
             const particle: IParticle = {
                 texture: textures[(Math.random() * textures.length) | 0],
 
-                x,
-                y,
+                x: px,
+                y: py,
 
-                scaleX: 1,
-                scaleY: 1,
+                scaleX: scale,
+                scaleY: scale,
 
-                // 🔥 POINTS OUTWARDS
+                // Face movement direction
                 rotation: angle - Math.PI / 2,
 
                 anchorX: 0.5,
@@ -57,7 +81,7 @@ export class RadialExplosion extends Container {
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 life: 0,
-                maxLife: 40 + Math.random() * 20,
+                maxLife: 20 + Math.random() * 25,
             });
         }
     }
@@ -73,6 +97,15 @@ export class RadialExplosion extends Container {
 
             pt.x += p.vx * delta;
             pt.y += p.vy * delta;
+
+            // Optional tiny drag for more natural spread
+            p.vx *= 0.985;
+            p.vy *= 0.985;
+
+            // Optional slight shrink near end of life
+            const t = 1 - p.life / p.maxLife;
+            pt.scaleX = t;
+            pt.scaleY = t;
 
             if (p.life >= p.maxLife) {
                 this.container.removeParticle(pt);
