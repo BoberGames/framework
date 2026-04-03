@@ -6,8 +6,15 @@ import { CascadeModel } from "./CascadeModel";
 import { dispatcher } from "../../index";
 import { getrandomInt } from "../../utils/Utils";
 
-const FALLING_DURATION = 0.3;
-const STAGGER_DELAY = 0.1;
+const CLEAR_BASE_DURATION = 0.38;
+const CLEAR_ROW_STAGGER = 0.03;
+const CLEAR_COL_STAGGER = 0.008;
+
+const DROP_BASE_DURATION = 0.14;
+const DROP_PER_CELL_DURATION = 0.06;
+const DROP_MAX_DURATION = 0.42;
+const DROP_COL_STAGGER = 0.015;
+const DROP_RANDOM_JITTER = 0.02;
 
 export class CascadeView extends Container {
     public grid: (Symbol | null)[][] = [];
@@ -71,6 +78,14 @@ export class CascadeView extends Container {
         });
 
 
+    }
+
+    private getDropDuration(cells: number): number {
+        return Math.min(DROP_BASE_DURATION + cells * DROP_PER_CELL_DURATION, DROP_MAX_DURATION);
+    }
+
+    private getRandomJitter(): number {
+        return Math.random() * DROP_RANDOM_JITTER;
     }
 
     private forceRandomBlobClusterOnGrid(grid: SymId[][]): SymId[][] {
@@ -227,25 +242,46 @@ export class CascadeView extends Container {
         let running = 0;
 
         return new Promise<void>((resolve) => {
-            for (let c = 0; c < this.grid.length; c++) {
-                for (let r = 0; r < this.grid[c].length; r++) {
+            const cols = this.grid.length;
+            const rows = this.grid[0]?.length ?? 0;
+
+            for (let c = 0; c < cols; c++) {
+                for (let r = 0; r < rows; r++) {
                     const sym = this.grid[c][r];
                     if (!sym) continue;
 
                     running++;
+
+                    const delay =
+                        (rows - 1 - r) * CLEAR_ROW_STAGGER +
+                        c * CLEAR_COL_STAGGER +
+                        Math.random() * 0.02;
+
+                    const duration = CLEAR_BASE_DURATION + Math.random() * 0.08;
+                    const driftX = (Math.random() - 0.5) * 20;
+                    const rot = (Math.random() - 0.5) * 0.25;
+
                     gsap.to(sym, {
-                        y: sym.y + 1000,
-                        duration: FALLING_DURATION,
-                        delay: c * STAGGER_DELAY,
+                        y: sym.y + 1200,
+                        x: sym.x + driftX,
+                        rotation: rot,
+                        alpha: 0.85,
+                        duration,
+                        delay,
+                        ease: "power2.in",
                         onComplete: () => {
                             this.removeChild(sym);
                             sym.destroy();
                             running--;
-                            if (running === 0) resolve();
+
+                            if (running === 0) {
+                                resolve();
+                            }
                         }
                     });
                 }
             }
+
             if (running === 0) resolve();
         });
     }
@@ -255,6 +291,8 @@ export class CascadeView extends Container {
         let running = 0;
 
         return new Promise<void>((resolve) => {
+            const rows = newGrid[0]?.length ?? 0;
+
             for (let c = 0; c < newGrid.length; c++) {
                 this.grid[c] = [];
 
@@ -263,17 +301,27 @@ export class CascadeView extends Container {
 
                     const s = new Symbol(newGrid[c][r] as SymId);
                     s.x = this.getSymbolX(c);
-                    s.y = -300 - c * 20;
+
+                    // start above screen, with slight variation
+                    const virtualStartRow = -2 - (rows - r);
+                    s.y = this.getSymbolY(virtualStartRow);
 
                     this.grid[c][r] = s;
                     this.addChild(s);
-                    if(s.id === ReelCfg.spineIds.SC || s.id === ReelCfg.spineIds.WD) {
+
+                    if (s.id === ReelCfg.spineIds.SC || s.id === ReelCfg.spineIds.WD) {
                         s.zIndex = 50;
                     }
+
+                    const cellsFallen = r - virtualStartRow;
+                    const duration = this.getDropDuration(cellsFallen);
+                    const delay = c * DROP_COL_STAGGER + this.getRandomJitter();
+
                     gsap.to(s, {
                         y: this.getSymbolY(r),
-                        duration: FALLING_DURATION,
-                        delay: (newGrid[c].length - 1 - r) * STAGGER_DELAY,
+                        duration,
+                        delay,
+                        ease: "power2.in",
                         onComplete: () => {
                             s.showLanding();
                             running--;
@@ -282,6 +330,8 @@ export class CascadeView extends Container {
                     });
                 }
             }
+
+            if (running === 0) resolve();
         });
     }
 
@@ -355,52 +405,77 @@ export class CascadeView extends Container {
         const newGrid = this.createEmptyGrid(cols, rows);
         let running = 0;
 
-        // Collapse columns
         for (let c = 0; c < cols; c++) {
-            const symbols = this.grid[c].filter(s => s !== null) as Symbol[];
-            const nulls = rows - symbols.length;
+            const survivors: { sym: Symbol; oldRow: number }[] = [];
 
-            for (let i = 0; i < symbols.length; i++) {
-                const targetRow = nulls + i;
-                const s = symbols[i];
-                newGrid[c][targetRow] = s;
-
-                running++;
-                // @ts-ignore
-                gsap.to(s, {
-                    y: this.getSymbolY(targetRow),
-                    duration: FALLING_DURATION,
-                    ease: "power2.out",
-                    // @ts-ignore
-                    onComplete: () => running--
-                });
-            }
-        }
-
-        // Fill with new symbols
-        for (let c = 0; c < cols; c++) {
             for (let r = 0; r < rows; r++) {
-                if (!newGrid[c][r]) {
-                    const id = this.slotModel.getRandomSymId();
-                    const s = new Symbol(id);
+                const sym = this.grid[c][r];
+                if (sym) {
+                    survivors.push({ sym, oldRow: r });
+                }
+            }
 
-                    s.x = this.getSymbolX(c);
-                    s.y = -300 - c * 20;
+            const nulls = rows - survivors.length;
 
-                    newGrid[c][r] = s;
-                    this.addChild(s);
+            // Move existing symbols down
+            for (let i = 0; i < survivors.length; i++) {
+                const { sym, oldRow } = survivors[i];
+                const targetRow = nulls + i;
 
+                newGrid[c][targetRow] = sym;
+
+                const cellsFallen = targetRow - oldRow;
+
+                if (cellsFallen > 0) {
                     running++;
-                    gsap.to(s, {
-                        y: this.getSymbolY(r),
-                        duration: FALLING_DURATION,
-                        delay: (rows - 1 - r) * STAGGER_DELAY,
+
+                    gsap.to(sym, {
+                        y: this.getSymbolY(targetRow),
+                        duration: this.getDropDuration(cellsFallen),
+                        delay: c * DROP_COL_STAGGER + this.getRandomJitter(),
+                        ease: "power2.in",
                         onComplete: () => {
-                            s.showLanding();
+                            sym.showLanding();
                             running--;
                         }
                     });
+                } else {
+                    sym.y = this.getSymbolY(targetRow);
                 }
+            }
+
+            // Spawn new symbols above
+            for (let r = 0; r < nulls; r++) {
+                const id = this.slotModel.getRandomSymId();
+                const s = new Symbol(id);
+
+                s.x = this.getSymbolX(c);
+
+                // place symbol above the board based on how high it should spawn
+                const virtualStartRow = -(nulls - r);
+                s.y = this.getSymbolY(virtualStartRow);
+
+                newGrid[c][r] = s;
+                this.addChild(s);
+
+                if (s.id === ReelCfg.spineIds.SC || s.id === ReelCfg.spineIds.WD) {
+                    s.zIndex = 50;
+                }
+
+                const cellsFallen = r - virtualStartRow;
+
+                running++;
+
+                gsap.to(s, {
+                    y: this.getSymbolY(r),
+                    duration: this.getDropDuration(cellsFallen),
+                    delay: c * DROP_COL_STAGGER + this.getRandomJitter(),
+                    ease: "power2.in",
+                    onComplete: () => {
+                        s.showLanding();
+                        running--;
+                    }
+                });
             }
         }
 
@@ -408,7 +483,7 @@ export class CascadeView extends Container {
 
         if (running === 0) return;
 
-        return new Promise<void>(res => {
+        return new Promise<void>((res) => {
             const t = setInterval(() => {
                 if (running === 0) {
                     clearInterval(t);

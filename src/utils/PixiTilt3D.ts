@@ -38,6 +38,15 @@ export interface PixiPerspectiveTiltOptions {
      * Defaults to renderer resolution.
      */
     textureResolution?: number;
+
+    /**
+     * Mobile gyroscope / device orientation support
+     */
+    useDeviceOrientation?: boolean;
+    deviceMaxAngleDeg?: number;
+    invertDeviceX?: boolean;
+    invertDeviceY?: boolean;
+    deviceDeadZone?: number;
 }
 
 export class PixiTilt3D extends Container {
@@ -57,10 +66,18 @@ export class PixiTilt3D extends Container {
 
     private lastGeneratedTexture: Texture | null = null;
 
+    private deviceOrientationEnabled = false;
+    private waitingForDeviceCalibration = false;
+    private baseBeta: number | null = null;
+    private baseGamma: number | null = null;
+
+    private readonly onDeviceOrientationBound: (event: DeviceOrientationEvent) => void;
+
     constructor(app: Application, options: PixiPerspectiveTiltOptions) {
         super();
 
         this.app = app;
+        this.onDeviceOrientationBound = this.onDeviceOrientation.bind(this);
 
         this.options = {
             width: options.width,
@@ -75,7 +92,13 @@ export class PixiTilt3D extends Container {
             verticesX: options.verticesX ?? 16,
             verticesY: options.verticesY ?? 16,
             liveTexture: options.liveTexture ?? true,
-            textureResolution: options.textureResolution ?? app.renderer.resolution
+            textureResolution: options.textureResolution ?? app.renderer.resolution,
+
+            useDeviceOrientation: options.useDeviceOrientation ?? false,
+            deviceMaxAngleDeg: options.deviceMaxAngleDeg ?? 28,
+            invertDeviceX: options.invertDeviceX ?? false,
+            invertDeviceY: options.invertDeviceY ?? false,
+            deviceDeadZone: options.deviceDeadZone ?? 0.04
         };
 
         this.eventMode = "static";
@@ -153,6 +176,61 @@ export class PixiTilt3D extends Container {
         this.applyMeshFromCurrentState();
     }
 
+    public async enableDeviceOrientation(): Promise<boolean> {
+        if (!this.options.useDeviceOrientation) {
+            return false;
+        }
+
+        if (typeof window === "undefined") {
+            return false;
+        }
+
+        if (!window.isSecureContext) {
+            return false;
+        }
+
+        if (!("DeviceOrientationEvent" in window)) {
+            return false;
+        }
+
+        type DeviceOrientationEventWithPermission = typeof DeviceOrientationEvent & {
+            requestPermission?: () => Promise<"granted" | "denied">;
+        };
+
+        const DeviceOrientationCtor =
+            window.DeviceOrientationEvent as DeviceOrientationEventWithPermission;
+
+        if (typeof DeviceOrientationCtor.requestPermission === "function") {
+            const result = await DeviceOrientationCtor.requestPermission();
+            if (result !== "granted") {
+                return false;
+            }
+        }
+
+        this.disableDeviceOrientation();
+
+        window.addEventListener("deviceorientation", this.onDeviceOrientationBound, { passive: true });
+        this.deviceOrientationEnabled = true;
+        this.calibrateDeviceOrientation();
+
+        return true;
+    }
+
+    public disableDeviceOrientation(): void {
+        if (typeof window !== "undefined") {
+            window.removeEventListener("deviceorientation", this.onDeviceOrientationBound);
+        }
+
+        this.deviceOrientationEnabled = false;
+        this.waitingForDeviceCalibration = false;
+        this.baseBeta = null;
+        this.baseGamma = null;
+    }
+
+    public calibrateDeviceOrientation(): void {
+        this.waitingForDeviceCalibration = true;
+    }
+
     public update(): void {
         const lerp = this.options.smoothing;
 
@@ -177,6 +255,8 @@ export class PixiTilt3D extends Container {
         this.off("pointerleave", this.onPointerLeave, this);
         this.off("globalpointermove", this.onGlobalPointerMove, this);
 
+        this.disableDeviceOrientation();
+
         if (this.lastGeneratedTexture) {
             this.lastGeneratedTexture.destroy(true);
             this.lastGeneratedTexture = null;
@@ -190,6 +270,7 @@ export class PixiTilt3D extends Container {
     }
 
     private onPointerMove(e: FederatedPointerEvent): void {
+        if (this.deviceOrientationEnabled) return;
         if (this.options.globalTracking) return;
 
         const local = e.getLocalPosition(this);
@@ -197,6 +278,7 @@ export class PixiTilt3D extends Container {
     }
 
     private onGlobalPointerMove(e: FederatedPointerEvent): void {
+        if (this.deviceOrientationEnabled) return;
         if (!this.options.globalTracking) return;
 
         const local = this.toLocal(e.global);
@@ -204,6 +286,8 @@ export class PixiTilt3D extends Container {
     }
 
     private onPointerLeave(): void {
+        if (this.deviceOrientationEnabled) return;
+
         if (this.options.resetOnLeave) {
             this.targetNX = 0;
             this.targetNY = 0;
@@ -222,6 +306,77 @@ export class PixiTilt3D extends Container {
         this.targetNY = this.clamp(ny, -1, 1);
     }
 
+    private onDeviceOrientation(event: DeviceOrientationEvent): void {
+        if (!this.deviceOrientationEnabled) return;
+        if (event.beta == null || event.gamma == null) return;
+
+        const beta = event.beta;
+        const gamma = event.gamma;
+
+        if (this.waitingForDeviceCalibration || this.baseBeta == null || this.baseGamma == null) {
+            this.baseBeta = beta;
+            this.baseGamma = gamma;
+            this.waitingForDeviceCalibration = false;
+        }
+
+        let relBeta = beta - this.baseBeta;
+        let relGamma = gamma - this.baseGamma;
+
+        const angle = this.getScreenAngle();
+
+        let xDeg = 0;
+        let yDeg = 0;
+
+        switch (angle) {
+            case 90:
+                xDeg = relBeta;
+                yDeg = -relGamma;
+                break;
+
+            case -90:
+            case 270:
+                xDeg = -relBeta;
+                yDeg = relGamma;
+                break;
+
+            case 180:
+            case -180:
+                xDeg = -relGamma;
+                yDeg = -relBeta;
+                break;
+
+            case 0:
+            default:
+                xDeg = relGamma;
+                yDeg = relBeta;
+                break;
+        }
+
+        let nx = this.clamp(xDeg / this.options.deviceMaxAngleDeg, -1, 1);
+        let ny = this.clamp(yDeg / this.options.deviceMaxAngleDeg, -1, 1);
+
+        if (this.options.invertDeviceX) nx *= -1;
+        if (this.options.invertDeviceY) ny *= -1;
+
+        if (Math.abs(nx) < this.options.deviceDeadZone) nx = 0;
+        if (Math.abs(ny) < this.options.deviceDeadZone) ny = 0;
+
+        this.targetNX = nx;
+        this.targetNY = ny;
+        this.targetScale = this.options.scaleOnHover;
+    }
+
+    private getScreenAngle(): number {
+        const orientationApi = screen.orientation as ScreenOrientation | undefined;
+
+        if (orientationApi && typeof orientationApi.angle === "number") {
+            return orientationApi.angle;
+        }
+
+        const legacyOrientation = (window as Window & { orientation?: number }).orientation;
+        return typeof legacyOrientation === "number" ? legacyOrientation : 0;
+    }
+
     private applyMeshFromCurrentState(): void {
         const w = this.options.width;
         const h = this.options.height;
@@ -231,22 +386,16 @@ export class PixiTilt3D extends Container {
         const halfW = w * 0.5;
         const halfH = h * 0.5;
 
-        // Mouse down  -> top edge comes toward viewer
         const pitch = this.degToRad(-this.currentNY * this.options.maxTiltDeg);
-
-        // Mouse right -> right edge comes toward viewer
         const yaw = this.degToRad(-this.currentNX * this.options.maxTiltDeg);
 
-        // Smaller distance = stronger perspective
-        // Bigger distance = flatter / calmer card
-        //TODO: change this for effect
         const cameraDistance =
             Math.max(w, h) * 0.8 + this.options.perspectiveOffset * 12;
 
-        const p0 = this.projectCardPoint(-halfW, -halfH, pitch, yaw, cameraDistance); // top-left
-        const p1 = this.projectCardPoint( halfW, -halfH, pitch, yaw, cameraDistance); // top-right
-        const p2 = this.projectCardPoint( halfW,  halfH, pitch, yaw, cameraDistance); // bottom-right
-        const p3 = this.projectCardPoint(-halfW,  halfH, pitch, yaw, cameraDistance); // bottom-left
+        const p0 = this.projectCardPoint(-halfW, -halfH, pitch, yaw, cameraDistance);
+        const p1 = this.projectCardPoint(halfW, -halfH, pitch, yaw, cameraDistance);
+        const p2 = this.projectCardPoint(halfW, halfH, pitch, yaw, cameraDistance);
+        const p3 = this.projectCardPoint(-halfW, halfH, pitch, yaw, cameraDistance);
 
         const scale = this.currentScale;
 
@@ -265,14 +414,12 @@ export class PixiTilt3D extends Container {
         yaw: number,
         cameraDistance: number
     ): { x: number; y: number } {
-        // Rotate around Y first (left/right tilt)
         const cosY = Math.cos(yaw);
         const sinY = Math.sin(yaw);
 
         const xYaw = x * cosY;
         const zYaw = -x * sinY;
 
-        // Then rotate around X (up/down tilt)
         const cosX = Math.cos(pitch);
         const sinX = Math.sin(pitch);
 

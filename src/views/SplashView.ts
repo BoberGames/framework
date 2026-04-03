@@ -128,41 +128,64 @@ export class SplashView {
         const logo = new LogoView();
         logo.x = bg.children[0].width - logo.width * 0.55;
         logo.y = bg.children[0].height * 0.28;
+        //DESKTOP
+        // const tiltView = new PixiTilt3D(this.app, {
+        //     width: 1920,
+        //     height: 1080,
+        //     maxTiltDeg: 8,
+        //     perspectiveOffset: 36,
+        //     scaleOnHover: 1.01,
+        //     smoothing: 0.12,
+        //     verticesX: 18,
+        //     verticesY: 18,
+        //     liveTexture: true
+        // });
 
-        const tiltView = new PixiTilt3D(this.app, {
-            width: 1920,
-            height: 1080,
-            maxTiltDeg: 8,
-            perspectiveOffset: 36,
-            scaleOnHover: 1.01,
-            smoothing: 0.12,
-            verticesX: 18,
-            verticesY: 18,
-            liveTexture: true
-        });
+        //MOBILE
+        // const tiltView = new PixiTilt3D(this.app, {
+        //     width: 1920,
+        //     height: 1080,
+        //     maxTiltDeg: 8,
+        //     perspectiveOffset: 36,
+        //     scaleOnHover: 1.01,
+        //     smoothing: 0.12,
+        //     verticesX: 18,
+        //     verticesY: 18,
+        //     liveTexture: true,
+        //     useDeviceOrientation: true,
+        //     deviceMaxAngleDeg: 26
+        // });
 
 
         this.app.stage.addChild(bg);
-        this.app.stage.addChild(tiltView);
+        // this.app.stage.addChild(tiltView);
+        this.app.stage.addChild(cascade);
 
-        tiltView.addSourceChild(cascade);
+        // tiltView.addSourceChild(cascade);
 
         this.app.stage.addChild(logo);
-
+        // bg.on("pointertap", async () => {
+        //     const ok = await tiltView.enableDeviceOrientation();
+        //     console.log("gyro enabled:", ok);
+        //
+        //     if (ok) {
+        //         tiltView.calibrateDeviceOrientation();
+        //     }
+        // });
 
         const wins = new Wins();
         this.app.stage.addChild(wins);
-        const bigwin = new BigWinsScreen(this.app)
+        // const bigwin = new BigWinsScreen(this.app)
 
-        dispatcher.on("WIN", (win)=>{
+        // dispatcher.on("WIN", (win)=>{
             // wins.showTotalWin(win);
             // wins.x = bg.children[0].width * 0.45;
             // wins.y = bg.children[0].height * 0.35;
-            bigwin.showWinAnimation(5999);
-        });
+            // bigwin.showWinAnimation(5999);
+        // });
 
-        bigwin.init();
-        bigwin.position.set(bg.children[0].width * 0.5, bg.children[0].height * 0.5);
+        // bigwin.init();
+        // bigwin.position.set(bg.children[0].width * 0.5, bg.children[0].height * 0.5);
         dispatcher.on("FS_INTRO", ()=>{
             const pop = new FreeSpinPopUp(Texture.from("freespins/FS_INTRO"), {
                 x: bg.children[0].width * 0.5,
@@ -200,7 +223,7 @@ export class SplashView {
         cactus.state.setAnimation(0, "IDLE_1_DAY", true);
 
         this.app.stage.addChild(cactus);
-        this.app.stage.addChild(bigwin);
+        // this.app.stage.addChild(bigwin);
 
         let mixer: ReturnType<typeof runAnimationMixer> | null = null;
 
@@ -233,9 +256,15 @@ export class SplashView {
         const part = new RadialExplosion(this.app);
         this.app.stage.addChildAt(part, this.app.stage.getChildIndex(cactus) + 1);
         cactus.interactive = true;
-        cactus.on("pointerdown", ()=>{
+        cactus.on("pointerdown", async () => {
             dispatcher.emit("SHOOT");
-        })
+            // const ok = await tiltView.enableDeviceOrientation();
+            // console.log("gyro enabled:", ok);
+            //
+            // if (ok) {
+            //     tiltView.calibrateDeviceOrientation();
+            // }
+        });
         dispatcher.on("SHOOT", async () => {
             part.explode(
                 cactus.x,
